@@ -1,4 +1,4 @@
-package com.saralynpoole.digitalcookbookcreator.ui.theme
+package com.saralynpoole.digitalcookbookcreator.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 

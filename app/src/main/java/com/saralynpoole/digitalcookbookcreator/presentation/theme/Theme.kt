@@ -1,6 +1,5 @@
-package com.saralynpoole.digitalcookbookcreator.ui.theme
+package com.saralynpoole.digitalcookbookcreator.presentation.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
