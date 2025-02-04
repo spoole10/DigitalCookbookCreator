@@ -9,49 +9,43 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.saralynpoole.digitalcookbookcreator.application.RecipeViewModel
 
-/**
- * Manually input a recipe screen.
- */
 @Composable
 fun ManuallyInputRecipeScreen(
-    // Recipe properties
-    title: String,
-    description: String,
-    ingredients: List<String>,
-    steps: List<String>,
-    // Event handlers
-    onTitleChange: (String) -> Unit,
-    onDescriptionChange: (String) -> Unit,
-    onIngredientChange: (Int, String) -> Unit,
-    onStepChange: (Int, String) -> Unit,
-    // Nav functions
-    onSaveRecipe: () -> Unit,
+    viewModel: RecipeViewModel,
     onViewAllRecipes: () -> Unit
 ) {
-    // Background for the screen
+    // Collect states from the ViewModel
+    val title by viewModel.recipeTitle.collectAsState()
+    val description by viewModel.recipeDescription.collectAsState()
+    val ingredients by viewModel.ingredients.collectAsState()
+    val steps by viewModel.steps.collectAsState()
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        // Column to arrange the elements vertically
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Displays the screen title
             Text(
                 text = "Manually input a recipe",
                 style = MaterialTheme.typography.headlineLarge.copy(
@@ -62,75 +56,111 @@ fun ManuallyInputRecipeScreen(
                 modifier = Modifier.padding(bottom = 32.dp, top = 32.dp)
             )
 
-            // Column to arrange the form fields with spacing
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // TextFields for the recipe title and description
                 TextField(
                     value = title,
-                    onValueChange = onTitleChange,
+                    onValueChange = { viewModel.updateTitle(it) },
                     label = { Text("Title") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                // Description field
                 TextField(
                     value = description,
-                    onValueChange = onDescriptionChange,
+                    onValueChange = { viewModel.updateDescription(it) },
                     label = { Text("Description") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                Text("Ingredients:")
 
-                // Arranges the ingredient fields with spacing
+                Text("Ingredients:")
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     ingredients.forEachIndexed { index, ingredient ->
-                        // TextField for each ingredient
-                        TextField(
-                            value = ingredient,
-                            onValueChange = { onIngredientChange(index, it) },
-                            label = { Text("Ingredient ${index + 1}") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            TextField(
+                                value = ingredient.name,
+                                onValueChange = {
+                                    viewModel.updateIngredient(
+                                        index,
+                                        it,
+                                        ingredient.quantity
+                                    )
+                                },
+                                label = { Text("Ingredient name") },
+                                modifier = Modifier.weight(2f)
+                            )
+                            TextField(
+                                value = ingredient.quantity.toString(),
+                                onValueChange = {
+                                    viewModel.updateIngredient(
+                                        index,
+                                        ingredient.name,
+                                        it.toIntOrNull() ?: 0
+                                    )
+                                },
+                                label = { Text("Qty") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                    // Add ingredient button
+                    Button(
+                        onClick = {
+                            viewModel.updateIngredient(
+                                ingredients.size,
+                                "",
+                                0
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add Ingredient")
                     }
                 }
-                Text("Steps:")
 
-                // Column to arrange the step fields with spacing
+                Text("Steps:")
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     steps.forEachIndexed { index, step ->
-                        // TextField for each step
                         TextField(
                             value = step,
-                            onValueChange = { onStepChange(index, it) },
+                            onValueChange = { viewModel.updateStep(index, it) },
                             label = { Text("Step ${index + 1}") },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
+                    // Add step button
+                    Button(
+                        onClick = { viewModel.updateStep(steps.size, "") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Add Step")
+                    }
                 }
             }
 
-            // Adds some space between the form and the buttons
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Arranges the buttons horizontally
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                // Save recipe button
                 Button(
-                    onClick = onSaveRecipe,
+                    onClick = { viewModel.saveRecipe() },
                     modifier = Modifier.heightIn(min = 56.dp)
                 ) {
                     Text("Save recipe")
                 }
-                // View all recipes button
                 Button(
                     onClick = onViewAllRecipes,
                     modifier = Modifier.heightIn(min = 56.dp)

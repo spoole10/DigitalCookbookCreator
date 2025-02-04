@@ -1,21 +1,31 @@
 package com.saralynpoole.digitalcookbookcreator
 
-import HomeScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.saralynpoole.digitalcookbookcreator.application.RecipeViewModel
 import com.saralynpoole.digitalcookbookcreator.presentation.theme.DigitalCookbookCreatorTheme
-import com.saralynpoole.digitalcookbookcreator.presentation.ui.*
+import com.saralynpoole.digitalcookbookcreator.presentation.ui.CreateNewRecipeScreen
+import com.saralynpoole.digitalcookbookcreator.presentation.ui.DeleteRecipeScreen
+import com.saralynpoole.digitalcookbookcreator.presentation.ui.FormatRecipeScreen
+import HomeScreen
+import android.annotation.SuppressLint
+import com.saralynpoole.digitalcookbookcreator.presentation.ui.ManuallyInputRecipeScreen
+import com.saralynpoole.digitalcookbookcreator.presentation.ui.UpdateRecipeScreen
+import com.saralynpoole.digitalcookbookcreator.presentation.ui.ViewAllRecipesScreen
+import com.saralynpoole.digitalcookbookcreator.presentation.ui.ViewSingleRecipeScreen
 
 /**
  * Main activity for the application.
  */
 class MainActivity : ComponentActivity() {
+    @SuppressLint("StateFlowValueCalledInComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Sets the content of the activity to the DigitalCookbookCreatorTheme
@@ -59,29 +69,22 @@ class MainActivity : ComponentActivity() {
                     }
                     // Composable for the manually input recipe screen
                     composable("manually_input_recipe") {
-                        // Sample recipe data
-                        val title = "Recipe Title"
-                        val description = "Recipe Description"
-                        val ingredients = listOf("Ingredient 1", "Ingredient 2")
-                        val steps = listOf("Step 1", "Step 2")
+                        val viewModel: RecipeViewModel = viewModel(
+                            factory = RecipeViewModel.Factory()
+                        )
                         ManuallyInputRecipeScreen(
-                            title = title,
-                            description = description,
-                            ingredients = ingredients,
-                            steps = steps,
-                            onTitleChange = { /* Update title */ },
-                            onDescriptionChange = { /* Update description */ },
-                            onIngredientChange = { index, value -> /* Update ingredient */ },
-                            onStepChange = { index, value -> /* Update step */ },
-                            onSaveRecipe = { /* Save recipe */ },
+                            viewModel = viewModel,
                             onViewAllRecipes = {
-                                // Navigates back to the view recipes screen
+                                // Navigates to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )
                     }
                     // Composable for the view recipes screen
                     composable("view_recipes") {
+                        val viewModel: RecipeViewModel = viewModel(
+                            factory = RecipeViewModel.Factory()
+                        )
                         ViewAllRecipesScreen(
                             // Sample recipe data
                             recipes = listOf("Recipe 1", "Recipe 2"),
@@ -108,24 +111,28 @@ class MainActivity : ComponentActivity() {
                         "update_recipe/{recipeId}",
                         arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
                     ) { backStackEntry ->
-                        // Sample recipe data
+                        val viewModel: RecipeViewModel = viewModel(
+                            factory = RecipeViewModel.Factory()
+                        )
                         val recipeId = backStackEntry.arguments?.getString("recipeId")
-                        val title = "Sample Recipe Title"
-                        val description = "Sample Recipe Description"
-                        val ingredients = listOf("Ingredient 1", "Ingredient 2")
-                        val steps = listOf("Step 1", "Step 2")
                         UpdateRecipeScreen(
-                            title = title,
-                            description = description,
-                            ingredients = ingredients,
-                            steps = steps,
-                            onTitleChange = { /* Update title */ },
-                            onDescriptionChange = { /* Update description */ },
-                            onIngredientChange = { index, value -> /* Update ingredient */ },
-                            onStepChange = { index, value -> /* Update step */ },
-                            onSaveChanges = { /* Save changes */ },
-                            // Navigates back to the view recipes screen
+                            title = viewModel.recipeTitle.value,
+                            description = viewModel.recipeDescription.value,
+                            ingredients = viewModel.ingredients.value.map { it.name },
+                            steps = viewModel.steps.value,
+                            onTitleChange = { viewModel.updateTitle(it) },
+                            onDescriptionChange = { viewModel.updateDescription(it) },
+                            onIngredientChange = { index, value ->
+                                viewModel.updateIngredient(
+                                    index,
+                                    value,
+                                    viewModel.ingredients.value.getOrNull(index)?.quantity ?: 0
+                                )
+                            },
+                            onStepChange = { index, value -> viewModel.updateStep(index, value) },
+                            onSaveChanges = { viewModel.saveRecipe() },
                             onViewAllRecipes = {
+                                // Navigates back to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )
@@ -135,57 +142,63 @@ class MainActivity : ComponentActivity() {
                         "delete_recipe/{recipeId}",
                         arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
                     ) { backStackEntry ->
-                        // Sample recipe data
+                        val viewModel: RecipeViewModel = viewModel(
+                            factory = RecipeViewModel.Factory()
+                        )
                         val recipeId = backStackEntry.arguments?.getString("recipeId")
-                        val recipeTitle = "Sample Recipe Title"
                         DeleteRecipeScreen(
-                            recipeTitle = recipeTitle,
+                            recipeTitle = viewModel.recipeTitle.value,
                             onConfirmDelete = { /* Confirm deletion */ },
-                            // Navigates back to the view recipes screen
                             onCancel = {
+                                // Navigates back to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )
                     }
                     // Composable for the format recipe screen
                     composable("format_recipe") {
-                        // Sample recipe data
-                        val title = "Formatted Recipe Title"
-                        val description = "Formatted Recipe Description"
-                        val ingredients = listOf("Formatted Ingredient 1", "Formatted Ingredient 2")
-                        val steps = listOf("Formatted Step 1", "Formatted Step 2")
+                        val viewModel: RecipeViewModel = viewModel(
+                            factory = RecipeViewModel.Factory()
+                        )
                         FormatRecipeScreen(
-                            title = title,
-                            description = description,
-                            ingredients = ingredients,
-                            steps = steps,
-                            onTitleChange = { /* Update title */ },
-                            onDescriptionChange = { /* Update description */ },
-                            onIngredientChange = { index, value -> /* Update ingredient */ },
-                            onStepChange = { index, value -> /* Update step */ },
-                            onSaveRecipe = { /* Save recipe */ },
+                            title = viewModel.recipeTitle.value,
+                            description = viewModel.recipeDescription.value,
+                            ingredients = viewModel.ingredients.value.map { it.name },
+                            steps = viewModel.steps.value,
+                            onTitleChange = { viewModel.updateTitle(it) },
+                            onDescriptionChange = { viewModel.updateDescription(it) },
+                            onIngredientChange = { index, value ->
+                                viewModel.updateIngredient(
+                                    index,
+                                    value,
+                                    viewModel.ingredients.value.getOrNull(index)?.quantity ?: 0
+                                )
+                            },
+                            onStepChange = { index, value -> viewModel.updateStep(index, value) },
+                            onSaveRecipe = { viewModel.saveRecipe() },
                             onRetakeRecipePhoto = { /* Retake recipe photo */ },
-                            // Navigates back to the view recipes screen
                             onViewAllRecipes = {
+                                // Navigates back to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )
                     }
                     // Composable for the view single recipe screen
-                    composable("view_recipe/{recipeId}") { backStackEntry ->
-                        // Sample recipe data
+                    composable(
+                        "view_recipe/{recipeId}",
+                        arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+                    ) { backStackEntry ->
+                        val viewModel: RecipeViewModel = viewModel(
+                            factory = RecipeViewModel.Factory()
+                        )
                         val recipeId = backStackEntry.arguments?.getString("recipeId")
-                        val title = "Sample Recipe Title"
-                        val description = "Sample Recipe Description"
-                        val ingredients = listOf("Ingredient 1", "Ingredient 2")
-                        val steps = listOf("Step 1", "Step 2")
                         ViewSingleRecipeScreen(
-                            title = title,
-                            description = description,
-                            ingredients = ingredients,
-                            steps = steps,
-                            // Navigates back to the view recipes screen
+                            title = viewModel.recipeTitle.value,
+                            description = viewModel.recipeDescription.value,
+                            ingredients = viewModel.ingredients.value.map { it.name },
+                            steps = viewModel.steps.value,
                             navigateToViewAllRecipes = {
+                                // Navigates back to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )

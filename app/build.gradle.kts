@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
+    //id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -58,8 +60,16 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+    implementation ("androidx.room:room-ktx:2.5.0")
+    val hilt_version = "2.44"
+   // implementation ("com.google.dagger:hilt-android:$hilt_version")
+   // ksp("com.google.dagger:hilt-android-compiler:$hilt_version")
 
-    implementation(libs.androidx.room.runtime)
+
+   // implementation ("androidx.hilt:hilt-navigation-compose:1.0.0")
 
 }
