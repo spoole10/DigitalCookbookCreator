@@ -19,36 +19,40 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.saralynpoole.digitalcookbookcreator.application.RecipeViewModel
+import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeWithRelations
 
 /**
  * View all recipes screen.
  */
 @Composable
 fun ViewAllRecipesScreen(
-    recipes: List<String>,
-    onUpdateRecipe: (String) -> Unit,
-    onDeleteRecipe: (String) -> Unit,
-    onViewRecipe: (String) -> Unit,
+    viewModel: RecipeViewModel,  // Updated to take ViewModel as parameter
+    onUpdateRecipe: (Int) -> Unit,
+    onDeleteRecipe: (Int) -> Unit,
+    onViewRecipe: (Int) -> Unit,
     navigateToHome: () -> Unit
 ) {
-    // Background for the screen
+    val recipes by viewModel.allRecipes.collectAsState()
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        // Arranges the elements vertically
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Displays the screen title
             Text(
                 text = "View all recipes",
                 style = MaterialTheme.typography.headlineLarge.copy(
@@ -59,25 +63,33 @@ fun ViewAllRecipesScreen(
                 modifier = Modifier.padding(bottom = 32.dp, top = 32.dp)
             )
 
-            // Arranges the list of recipes with spacing
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                items(recipes) { recipe ->
-                    // Displays each recipe
-                    RecipeItem(
-                        recipeTitle = recipe,
-                        onUpdateRecipe = onUpdateRecipe,
-                        onDeleteRecipe = onDeleteRecipe,
-                        onViewRecipe = onViewRecipe
-                    )
+            if (recipes.isEmpty()) {
+                Text(
+                    text = "No recipes found. Create a new recipe to get started!",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp)
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
+                ) {
+                    items(recipes) { recipeWithRelations ->
+                        RecipeItem(
+                            recipe = recipeWithRelations,
+                            onUpdateRecipe = onUpdateRecipe,
+                            onDeleteRecipe = onDeleteRecipe,
+                            onViewRecipe = onViewRecipe
+                        )
+                    }
                 }
             }
 
-            // Button to navigate back to the home screen
             Button(
                 onClick = navigateToHome,
                 modifier = Modifier
@@ -93,48 +105,54 @@ fun ViewAllRecipesScreen(
         }
     }
 }
-// Displays each recipe
+
 @Composable
 fun RecipeItem(
-    recipeTitle: String,
-    onUpdateRecipe: (String) -> Unit,
-    onDeleteRecipe: (String) -> Unit,
-    onViewRecipe: (String) -> Unit
+    recipe: RecipeWithRelations,
+    onUpdateRecipe: (Int) -> Unit,
+    onDeleteRecipe: (Int) -> Unit,
+    onViewRecipe: (Int) -> Unit
 ) {
-    // Card for each recipe
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 72.dp)
-            .clickable { onViewRecipe(recipeTitle) },
+            .clickable { onViewRecipe(recipe.recipe.recipeId) },
         elevation = CardDefaults.cardElevation()
     ) {
-        // Arranges the elements horizontally
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+        Column(
+            modifier = Modifier.padding(16.dp)
         ) {
-            // Displays the recipe title
             Text(
-                text = recipeTitle,
-                modifier = Modifier.weight(1f)
+                text = recipe.recipe.recipeTitle,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-            // Arranges the update and delete buttons
+            Text(
+                text = recipe.recipe.recipeDescription,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = "${recipe.ingredients.size} ingredients • ${recipe.steps.size} steps",
+                style = MaterialTheme.typography.bodySmall
+            )
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.End
             ) {
-                // Update button
                 Button(
-                    onClick = { onUpdateRecipe(recipeTitle) },
-                    modifier = Modifier.heightIn(min = 40.dp)
+                    onClick = { onUpdateRecipe(recipe.recipe.recipeId) },
+                    modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text("Update")
                 }
-                // Delete button
                 Button(
-                    onClick = { onDeleteRecipe(recipeTitle) },
-                    modifier = Modifier.heightIn(min = 40.dp)
+                    onClick = { onDeleteRecipe(recipe.recipe.recipeId) }
                 ) {
                     Text("Delete")
                 }

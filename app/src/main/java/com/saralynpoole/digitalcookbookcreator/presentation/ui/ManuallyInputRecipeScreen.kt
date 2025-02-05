@@ -97,12 +97,15 @@ fun ManuallyInputRecipeScreen(
                                 modifier = Modifier.weight(2f)
                             )
                             TextField(
-                                value = ingredient.quantity.toString(),
+                                // Convert quantity to empty string if 0, otherwise show the number
+                                value = if (ingredient.quantity == 0) "" else ingredient.quantity.toString(),
                                 onValueChange = {
+                                    // Only parse to Int if the input is not empty
+                                    val quantity = if (it.isEmpty()) 0 else it.toIntOrNull() ?: return@TextField
                                     viewModel.updateIngredient(
                                         index,
                                         ingredient.name,
-                                        it.toIntOrNull() ?: 0
+                                        quantity
                                     )
                                 },
                                 label = { Text("Qty") },

@@ -82,25 +82,18 @@ class MainActivity : ComponentActivity() {
                     }
                     // Composable for the view recipes screen
                     composable("view_recipes") {
-                        val viewModel: RecipeViewModel = viewModel(
-                            factory = RecipeViewModel.Factory()
-                        )
+                        val viewModel: RecipeViewModel = viewModel(factory = RecipeViewModel.Factory())
                         ViewAllRecipesScreen(
-                            // Sample recipe data
-                            recipes = listOf("Recipe 1", "Recipe 2"),
-                            // Navigates to the update recipe screen
-                            onUpdateRecipe = { recipeTitle ->
-                                navController.navigate("update_recipe/$recipeTitle")
+                            viewModel = viewModel,
+                            onUpdateRecipe = { recipeId ->
+                                navController.navigate("update_recipe/$recipeId")
                             },
-                            // Navigates to the delete recipe screen
-                            onDeleteRecipe = { recipeTitle ->
-                                navController.navigate("delete_recipe/$recipeTitle")
+                            onDeleteRecipe = { recipeId ->
+                                navController.navigate("delete_recipe/$recipeId")
                             },
-                            // Navigates to the view single recipe screen
-                            onViewRecipe = { recipeTitle ->
-                                navController.navigate("view_recipe/$recipeTitle")
+                            onViewRecipe = { recipeId ->
+                                navController.navigate("view_recipe/$recipeId")
                             },
-                            // Navigates back to the home screen
                             navigateToHome = {
                                 navController.navigate("home")
                             }

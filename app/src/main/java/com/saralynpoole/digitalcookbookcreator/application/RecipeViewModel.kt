@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.saralynpoole.digitalcookbookcreator.di.DependencyContainer
 import com.saralynpoole.digitalcookbookcreator.domain.entity.IngredientEntity
 import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeEntity
+import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeWithRelations
 import com.saralynpoole.digitalcookbookcreator.domain.entity.StepEntity
 import com.saralynpoole.digitalcookbookcreator.domain.usecase.IngredientUseCase
 import com.saralynpoole.digitalcookbookcreator.domain.usecase.RecipeUseCase
@@ -37,6 +38,32 @@ class RecipeViewModel(
 
     private val _steps = MutableStateFlow<List<String>>(emptyList())
     val steps = _steps.asStateFlow()
+
+    private val _allRecipes = MutableStateFlow<List<RecipeWithRelations>>(emptyList())
+    val allRecipes = _allRecipes.asStateFlow()
+
+    // Function to load all recipes
+    init {
+        loadAllRecipes()
+    }
+
+    private fun loadAllRecipes() {
+        viewModelScope.launch {
+            recipeUseCase.getAllRecipes().collect { recipes ->
+                _allRecipes.value = recipes
+            }
+        }
+    }
+
+    // Function to delete a recipe
+    fun deleteRecipe(recipeId: Int) {
+        viewModelScope.launch {
+            val recipeToDelete = _allRecipes.value.find { it.recipe.recipeId == recipeId }
+            recipeToDelete?.let {
+                recipeUseCase.deleteRecipe(it.recipe)
+            }
+        }
+    }
 
     data class IngredientState(
         val name: String = "",
