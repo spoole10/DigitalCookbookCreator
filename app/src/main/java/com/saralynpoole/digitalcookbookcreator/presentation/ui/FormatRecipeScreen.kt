@@ -153,7 +153,7 @@ fun FormatRecipeScreen(
                     }
                 }
                 // Button to retake the recipe photo
-                // In future a future release, this will be updated to open the camera
+                // In a future release, this will be updated to open the camera
                 Button(
                     onClick = onRetakeRecipePhoto,
                     modifier = Modifier

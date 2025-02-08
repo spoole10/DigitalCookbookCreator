@@ -111,21 +111,20 @@ class MainActivity : ComponentActivity() {
                         UpdateRecipeScreen(
                             title = viewModel.recipeTitle.value,
                             description = viewModel.recipeDescription.value,
-                            ingredients = viewModel.ingredients.value.map { it.name },
+                            ingredients = viewModel.ingredients.value.map { "${it.name} (${it.quantity})" },
                             steps = viewModel.steps.value,
                             onTitleChange = { viewModel.updateTitle(it) },
                             onDescriptionChange = { viewModel.updateDescription(it) },
                             onIngredientChange = { index, value ->
-                                viewModel.updateIngredient(
-                                    index,
-                                    value,
-                                    viewModel.ingredients.value.getOrNull(index)?.quantity ?: 0
-                                )
+                                // Parse name and quantity from combined string
+                                val parts = value.split(" (", ")")
+                                val name = parts.getOrNull(0) ?: ""
+                                val quantity = parts.getOrNull(1) ?: ""
+                                viewModel.updateIngredient(index, name, quantity)
                             },
                             onStepChange = { index, value -> viewModel.updateStep(index, value) },
                             onSaveChanges = { viewModel.saveRecipe() },
                             onViewAllRecipes = {
-                                // Navigates back to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )
@@ -156,22 +155,21 @@ class MainActivity : ComponentActivity() {
                         FormatRecipeScreen(
                             title = viewModel.recipeTitle.value,
                             description = viewModel.recipeDescription.value,
-                            ingredients = viewModel.ingredients.value.map { it.name },
+                            ingredients = viewModel.ingredients.value.map { "${it.name} (${it.quantity})" },
                             steps = viewModel.steps.value,
                             onTitleChange = { viewModel.updateTitle(it) },
                             onDescriptionChange = { viewModel.updateDescription(it) },
                             onIngredientChange = { index, value ->
-                                viewModel.updateIngredient(
-                                    index,
-                                    value,
-                                    viewModel.ingredients.value.getOrNull(index)?.quantity ?: 0
-                                )
+                                // Parse name and quantity from combined string
+                                val parts = value.split(" (", ")")
+                                val name = parts.getOrNull(0) ?: ""
+                                val quantity = parts.getOrNull(1) ?: ""
+                                viewModel.updateIngredient(index, name, quantity)
                             },
                             onStepChange = { index, value -> viewModel.updateStep(index, value) },
                             onSaveRecipe = { viewModel.saveRecipe() },
                             onRetakeRecipePhoto = { /* Retake recipe photo */ },
                             onViewAllRecipes = {
-                                // Navigates back to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )

@@ -20,16 +20,14 @@ import com.saralynpoole.digitalcookbookcreator.domain.entity.StepEntity
         IngredientEntity::class,
         StepEntity::class
     ],
-    version = 1
+    version = 2
 )
-
 abstract class AppDatabase : RoomDatabase() {
     // DAOs for each entity
     abstract fun recipeDAO(): RecipeDAO
     abstract fun ingredientDAO(): IngredientDAO
     abstract fun stepDAO(): StepDAO
 
-    // Singleton for creating and accessing AppDatabase instance
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -39,7 +37,6 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    // Name of the database
                     "recipe_database"
                 ).build()
                 INSTANCE = instance

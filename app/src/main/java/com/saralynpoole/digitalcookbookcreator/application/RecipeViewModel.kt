@@ -14,7 +14,6 @@ import com.saralynpoole.digitalcookbookcreator.domain.usecase.StepUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /*
  * View model for a recipe
@@ -26,7 +25,7 @@ class RecipeViewModel(
     private val stepUseCase: StepUseCase
 ) : ViewModel() {
 
-    // Mutable states for recipe title, description, ingredients, and steps
+    // Mutable states
     private val _recipeTitle = MutableStateFlow("")
     val recipeTitle = _recipeTitle.asStateFlow()
 
@@ -67,7 +66,7 @@ class RecipeViewModel(
 
     data class IngredientState(
         val name: String = "",
-        val quantity: Int = 0
+        val quantity: String = ""
     )
 
     // Methods to update the title, description, ingredients, and steps
@@ -79,7 +78,7 @@ class RecipeViewModel(
         _recipeDescription.value = newDescription
     }
 
-    fun updateIngredient(index: Int, name: String, quantity: Int) {
+    fun updateIngredient(index: Int, name: String, quantity: String) {
         val currentList = _ingredients.value.toMutableList()
         val newIngredient = IngredientState(name, quantity)
         if (index < currentList.size) {

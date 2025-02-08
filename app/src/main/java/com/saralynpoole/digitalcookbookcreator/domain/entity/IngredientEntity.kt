@@ -34,7 +34,7 @@ data class IngredientEntity(
     val name: String,
 
     // Quantity of the ingredient
-    @ColumnInfo(name = "Quantity")
-    val quantity: Int
+    @ColumnInfo(name = "Quantity", typeAffinity = ColumnInfo.TEXT)
+    val quantity: String
 )
 

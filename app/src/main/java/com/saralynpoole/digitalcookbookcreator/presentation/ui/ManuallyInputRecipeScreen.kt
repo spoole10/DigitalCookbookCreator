@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saralynpoole.digitalcookbookcreator.application.RecipeViewModel
 
+/**
+ * Manually input a recipe screen.
+ */
 @Composable
 fun ManuallyInputRecipeScreen(
     viewModel: RecipeViewModel,
@@ -37,15 +40,18 @@ fun ManuallyInputRecipeScreen(
     val ingredients by viewModel.ingredients.collectAsState()
     val steps by viewModel.steps.collectAsState()
 
+    // Background for the screen
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        // Outer column to stack elements vertically
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            // Title text at the top of the screen
             Text(
                 text = "Manually input a recipe",
                 style = MaterialTheme.typography.headlineLarge.copy(
@@ -56,9 +62,11 @@ fun ManuallyInputRecipeScreen(
                 modifier = Modifier.padding(bottom = 32.dp, top = 32.dp)
             )
 
+            // Column to contain input fields
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // TextFields for the recipe title and description
                 TextField(
                     value = title,
                     onValueChange = { viewModel.updateTitle(it) },
@@ -66,7 +74,6 @@ fun ManuallyInputRecipeScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                // Description field
                 TextField(
                     value = description,
                     onValueChange = { viewModel.updateDescription(it) },
@@ -74,7 +81,9 @@ fun ManuallyInputRecipeScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
+                // Label for the ingredients section
                 Text("Ingredients:")
+                // Lists ingredient input fields
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
@@ -84,6 +93,7 @@ fun ManuallyInputRecipeScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            // Text field for each ingredient
                             TextField(
                                 value = ingredient.name,
                                 onValueChange = {
@@ -96,20 +106,19 @@ fun ManuallyInputRecipeScreen(
                                 label = { Text("Ingredient name") },
                                 modifier = Modifier.weight(2f)
                             )
+                            // Text field for ingredient quantity
                             TextField(
-                                // Convert quantity to empty string if 0, otherwise show the number
-                                value = if (ingredient.quantity == 0) "" else ingredient.quantity.toString(),
+                                value = ingredient.quantity,
                                 onValueChange = {
-                                    // Only parse to Int if the input is not empty
-                                    val quantity = if (it.isEmpty()) 0 else it.toIntOrNull() ?: return@TextField
+
                                     viewModel.updateIngredient(
                                         index,
                                         ingredient.name,
-                                        quantity
+                                        it
                                     )
                                 },
                                 label = { Text("Qty") },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -120,7 +129,7 @@ fun ManuallyInputRecipeScreen(
                             viewModel.updateIngredient(
                                 ingredients.size,
                                 "",
-                                0
+                                ""
                             )
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -129,12 +138,14 @@ fun ManuallyInputRecipeScreen(
                     }
                 }
 
+                // Label for the steps section
                 Text("Steps:")
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     steps.forEachIndexed { index, step ->
+                        // Text field for each step
                         TextField(
                             value = step,
                             onValueChange = { viewModel.updateStep(index, it) },
@@ -152,18 +163,22 @@ fun ManuallyInputRecipeScreen(
                 }
             }
 
+            // Adds vertical space
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Row to arrange the save and view all recipes buttons horizontally
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
+                // Button to save a recipe
                 Button(
                     onClick = { viewModel.saveRecipe() },
                     modifier = Modifier.heightIn(min = 56.dp)
                 ) {
                     Text("Save recipe")
                 }
+                // Button to navigate to the view all recipes screen
                 Button(
                     onClick = onViewAllRecipes,
                     modifier = Modifier.heightIn(min = 56.dp)

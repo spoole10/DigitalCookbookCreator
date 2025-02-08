@@ -36,7 +36,7 @@ import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeWithRelations
  */
 @Composable
 fun ViewAllRecipesScreen(
-    viewModel: RecipeViewModel,  // Updated to take ViewModel as parameter
+    viewModel: RecipeViewModel,
     onUpdateRecipe: (Int) -> Unit,
     onDeleteRecipe: (Int) -> Unit,
     onViewRecipe: (Int) -> Unit,
@@ -44,15 +44,18 @@ fun ViewAllRecipesScreen(
 ) {
     val recipes by viewModel.allRecipes.collectAsState()
 
+    // Background for the screen
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        // Arranges the elements vertically
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            // Displays the screen title
             Text(
                 text = "View all recipes",
                 style = MaterialTheme.typography.headlineLarge.copy(
@@ -63,6 +66,7 @@ fun ViewAllRecipesScreen(
                 modifier = Modifier.padding(bottom = 32.dp, top = 32.dp)
             )
 
+            // Display message if no recipes are found
             if (recipes.isEmpty()) {
                 Text(
                     text = "No recipes found. Create a new recipe to get started!",
@@ -73,6 +77,7 @@ fun ViewAllRecipesScreen(
                         .padding(vertical = 32.dp)
                 )
             } else {
+                // Arranges the list of recipes with spacing
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -80,6 +85,7 @@ fun ViewAllRecipesScreen(
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     items(recipes) { recipeWithRelations ->
+                        // Displays each recipe
                         RecipeItem(
                             recipe = recipeWithRelations,
                             onUpdateRecipe = onUpdateRecipe,
@@ -90,6 +96,7 @@ fun ViewAllRecipesScreen(
                 }
             }
 
+            // Button to navigate back to the home screen
             Button(
                 onClick = navigateToHome,
                 modifier = Modifier
@@ -106,6 +113,9 @@ fun ViewAllRecipesScreen(
     }
 }
 
+/**
+ * Recipe item for the view all recipes screen.
+ */
 @Composable
 fun RecipeItem(
     recipe: RecipeWithRelations,
@@ -113,6 +123,7 @@ fun RecipeItem(
     onDeleteRecipe: (Int) -> Unit,
     onViewRecipe: (Int) -> Unit
 ) {
+    // Card for each recipe
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -123,11 +134,13 @@ fun RecipeItem(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+            // Display the recipe title
             Text(
                 text = recipe.recipe.recipeTitle,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+            // Display the recipe description
             Text(
                 text = recipe.recipe.recipeDescription,
                 style = MaterialTheme.typography.bodyMedium,
@@ -135,6 +148,7 @@ fun RecipeItem(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
+            // Display the number of ingredients and steps
             Text(
                 text = "${recipe.ingredients.size} ingredients • ${recipe.steps.size} steps",
                 style = MaterialTheme.typography.bodySmall
@@ -145,12 +159,14 @@ fun RecipeItem(
                     .padding(top = 8.dp),
                 horizontalArrangement = Arrangement.End
             ) {
+                // Update button
                 Button(
                     onClick = { onUpdateRecipe(recipe.recipe.recipeId) },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text("Update")
                 }
+                // Delete button
                 Button(
                     onClick = { onDeleteRecipe(recipe.recipe.recipeId) }
                 ) {
