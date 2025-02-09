@@ -29,6 +29,7 @@ fun ViewSingleRecipeScreen(
     recipeId: Int,
     navigateToViewAllRecipes: () -> Unit
 ) {
+    // Collect the current recipe and loading state from the view model
     val currentRecipe by viewModel.currentRecipe.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
@@ -43,6 +44,7 @@ fun ViewSingleRecipeScreen(
     ) {
         when {
             isLoading -> {
+                // Display a loading indicator while the recipe is being loaded
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -51,6 +53,7 @@ fun ViewSingleRecipeScreen(
                 }
             }
             currentRecipe == null -> {
+                // Display a message when the recipe is not found
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -72,6 +75,7 @@ fun ViewSingleRecipeScreen(
                 }
             }
             else -> {
+                // Display the recipe details
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -79,6 +83,7 @@ fun ViewSingleRecipeScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
+                        // Display the recipe title
                         text = currentRecipe!!.recipe.recipeTitle,
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontSize = 24.sp,
@@ -91,6 +96,7 @@ fun ViewSingleRecipeScreen(
                     )
 
                     if (currentRecipe!!.recipe.recipeDescription.isNotBlank()) {
+                        // Display the recipe description if available
                         Text(
                             text = currentRecipe!!.recipe.recipeDescription,
                             style = MaterialTheme.typography.bodyMedium,
@@ -100,6 +106,7 @@ fun ViewSingleRecipeScreen(
                     }
 
                     if (currentRecipe!!.ingredients.isNotEmpty()) {
+                        // Display the ingredients list if available
                         Text(
                             text = "Ingredients:",
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -111,6 +118,7 @@ fun ViewSingleRecipeScreen(
                         Column(
                             modifier = Modifier.padding(start = 16.dp)
                         ) {
+                            // Sort the ingredients by name
                             currentRecipe!!.ingredients.forEach { ingredient ->
                                 Text(
                                     text = "- ${ingredient.quantity} ${ingredient.name}",
@@ -125,6 +133,7 @@ fun ViewSingleRecipeScreen(
                     }
 
                     if (currentRecipe!!.steps.isNotEmpty()) {
+                        // Display the steps if available
                         Text(
                             text = "Steps:",
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -136,6 +145,7 @@ fun ViewSingleRecipeScreen(
                         Column(
                             modifier = Modifier.padding(start = 16.dp)
                         ) {
+                            // Sort the steps by step number
                             currentRecipe!!.steps
                                 .sortedBy { it.stepNumber }
                                 .forEach { step ->
@@ -151,6 +161,7 @@ fun ViewSingleRecipeScreen(
                         Spacer(modifier = Modifier.height(32.dp))
                     }
 
+                    // Button to navigate back to the list of all recipes
                     Button(
                         onClick = navigateToViewAllRecipes,
                         modifier = Modifier
