@@ -3,7 +3,7 @@ package com.saralynpoole.digitalcookbookcreator.domain.entity
 import androidx.room.Embedded
 import androidx.room.Relation
 
-/*
+/**
     Recipe entity with the associated ingredients and steps
  */
 data class RecipeWithRelations(

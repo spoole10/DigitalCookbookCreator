@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 
-/*
+/**
     Entity to represent a step
  */
 @Entity(

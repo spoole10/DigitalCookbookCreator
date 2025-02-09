@@ -80,20 +80,25 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                    // Composable for the view recipes screen
+                    // Composable for the view all recipes screen
                     composable("view_recipes") {
+                        // Initializes the view model
                         val viewModel: RecipeViewModel = viewModel(factory = RecipeViewModel.Factory())
                         ViewAllRecipesScreen(
+                            // Navigates to the update recipe screen
                             viewModel = viewModel,
                             onUpdateRecipe = { recipeId ->
                                 navController.navigate("update_recipe/$recipeId")
                             },
+                            // Navigates to the delete recipe screen
                             onDeleteRecipe = { recipeId ->
                                 navController.navigate("delete_recipe/$recipeId")
                             },
+                            // Navigates to the view a single recipe screen
                             onViewRecipe = { recipeId ->
                                 navController.navigate("view_recipe/$recipeId")
                             },
+                            // Navigates back to the home screen
                             navigateToHome = {
                                 navController.navigate("home")
                             }
@@ -174,23 +179,28 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     }
-                    // Composable for the view single recipe screen
+                    // Composable for the view a single recipe screen
                     composable(
                         "view_recipe/{recipeId}",
-                        arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+                        // Passes the recipeId as an argument
+                        arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
                     ) { backStackEntry ->
+                        // Initializes the view model
                         val viewModel: RecipeViewModel = viewModel(
                             factory = RecipeViewModel.Factory()
                         )
-                        val recipeId = backStackEntry.arguments?.getString("recipeId")
+                        // Retrieves the recipeId from the back stack entry
+                        val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: return@composable
+
+                        // Displays the view a single recipe screen
                         ViewSingleRecipeScreen(
-                            title = viewModel.recipeTitle.value,
-                            description = viewModel.recipeDescription.value,
-                            ingredients = viewModel.ingredients.value.map { it.name },
-                            steps = viewModel.steps.value,
+                            viewModel = viewModel,
+                            recipeId = recipeId,
+                            // Navigates back to the view recipes screen
                             navigateToViewAllRecipes = {
-                                // Navigates back to the view recipes screen
-                                navController.navigate("view_recipes")
+                                navController.navigate("view_recipes") {
+                                    popUpTo("view_recipes") { inclusive = true }
+                                }
                             }
                         )
                     }

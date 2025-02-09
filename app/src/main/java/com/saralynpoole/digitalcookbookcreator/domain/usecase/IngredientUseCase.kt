@@ -5,7 +5,7 @@ import com.saralynpoole.digitalcookbookcreator.domain.entity.IngredientEntity
 import kotlinx.coroutines.flow.Flow
 
 
-/*
+/**
  * Use case for ingredients.
  */
 class IngredientUseCase (

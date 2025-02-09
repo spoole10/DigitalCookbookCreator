@@ -4,7 +4,7 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import com.saralynpoole.digitalcookbookcreator.domain.entity.StepEntity
 
-/*
+/**
  * Data Access Object for steps
  */
 @Dao

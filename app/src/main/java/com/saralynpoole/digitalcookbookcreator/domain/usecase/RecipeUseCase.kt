@@ -5,7 +5,7 @@ import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeEntity
 import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeWithRelations
 import kotlinx.coroutines.flow.Flow
 
-/*
+/**
  * Use case for recipes.
  */
 class RecipeUseCase(

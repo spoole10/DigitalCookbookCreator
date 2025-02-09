@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/*
+/**
  * View model for a recipe
  */
 class RecipeViewModel(
@@ -41,11 +41,18 @@ class RecipeViewModel(
     private val _allRecipes = MutableStateFlow<List<RecipeWithRelations>>(emptyList())
     val allRecipes = _allRecipes.asStateFlow()
 
-    // Function to load all recipes
+    private val _currentRecipe = MutableStateFlow<RecipeWithRelations?>(null)
+    val currentRecipe = _currentRecipe.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    // Function initialize to load all recipes when the ViewModel is created
     init {
         loadAllRecipes()
     }
 
+    // Function to load all recipes
     private fun loadAllRecipes() {
         viewModelScope.launch {
             recipeUseCase.getAllRecipes().collect { recipes ->
@@ -54,7 +61,18 @@ class RecipeViewModel(
         }
     }
 
-    // Function to delete a recipe
+    // Function to load a specific recipe by its ID
+    fun loadRecipe(recipeId: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            recipeUseCase.getRecipe(recipeId).collect { recipes ->
+                _currentRecipe.value = recipes.firstOrNull()
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Function to delete a recipe by its ID
     fun deleteRecipe(recipeId: Int) {
         viewModelScope.launch {
             val recipeToDelete = _allRecipes.value.find { it.recipe.recipeId == recipeId }
@@ -64,6 +82,7 @@ class RecipeViewModel(
         }
     }
 
+    // Data class to represent the state of an ingredient
     data class IngredientState(
         val name: String = "",
         val quantity: String = ""

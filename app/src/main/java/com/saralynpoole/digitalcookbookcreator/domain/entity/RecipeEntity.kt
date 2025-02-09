@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ColumnInfo
 
-/*
+/**
     Entity to represent a recipe
  */
 @Entity(tableName = "Recipes")

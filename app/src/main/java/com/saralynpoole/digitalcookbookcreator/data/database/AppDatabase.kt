@@ -11,7 +11,7 @@ import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeEntity
 import com.saralynpoole.digitalcookbookcreator.domain.entity.IngredientEntity
 import com.saralynpoole.digitalcookbookcreator.domain.entity.StepEntity
 
-/*
+/**
  * Database class for the application
  */
 @Database(
@@ -32,14 +32,19 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        // Returns the singleton instance of the database.
+        // If the instance is null, it creates a new one using Room.databaseBuilder.
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
+                // Creates a new instance of the database if it doesn't exist
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
                     "recipe_database"
                 ).build()
+                // Sets the newly created instance to INSTANCE
                 INSTANCE = instance
+                // Returns the instance
                 instance
             }
         }

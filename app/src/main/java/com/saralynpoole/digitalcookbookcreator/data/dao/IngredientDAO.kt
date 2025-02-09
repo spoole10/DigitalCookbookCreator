@@ -4,7 +4,7 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import com.saralynpoole.digitalcookbookcreator.domain.entity.IngredientEntity
 
-/*
+/**
  * Data Access Object for ingredients
  */
 @Dao

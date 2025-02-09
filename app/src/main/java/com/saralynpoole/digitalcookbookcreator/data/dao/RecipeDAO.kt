@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeEntity
 import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeWithRelations
 
-/*
+/**
    Data Access Object for recipes
  */
 @Dao
