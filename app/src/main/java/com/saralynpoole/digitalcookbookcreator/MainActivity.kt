@@ -114,6 +114,7 @@ class MainActivity : ComponentActivity() {
                         )
                         val recipeId = backStackEntry.arguments?.getString("recipeId")
                         UpdateRecipeScreen(
+                            // Initializes the view model
                             title = viewModel.recipeTitle.value,
                             description = viewModel.recipeDescription.value,
                             ingredients = viewModel.ingredients.value.map { "${it.name} (${it.quantity})" },
@@ -130,6 +131,7 @@ class MainActivity : ComponentActivity() {
                             onStepChange = { index, value -> viewModel.updateStep(index, value) },
                             onSaveChanges = { viewModel.saveRecipe() },
                             onViewAllRecipes = {
+                                // Navigate back to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )
@@ -145,7 +147,10 @@ class MainActivity : ComponentActivity() {
                         val recipeId = backStackEntry.arguments?.getString("recipeId")
                         DeleteRecipeScreen(
                             recipeTitle = viewModel.recipeTitle.value,
-                            onConfirmDelete = { /* Confirm deletion */ },
+                            onConfirmDelete = {
+                                viewModel.deleteRecipe(recipeId?.toInt() ?: 0)
+                                navController.navigate("view_recipes")
+                            },
                             onCancel = {
                                 // Navigates back to the view recipes screen
                                 navController.navigate("view_recipes")

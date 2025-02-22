@@ -74,6 +74,7 @@ class RecipeViewModel(
 
     // Function to delete a recipe by its ID
     fun deleteRecipe(recipeId: Int) {
+        // Find the recipe to delete and delete it
         viewModelScope.launch {
             val recipeToDelete = _allRecipes.value.find { it.recipe.recipeId == recipeId }
             recipeToDelete?.let {
@@ -98,50 +99,67 @@ class RecipeViewModel(
     }
 
     fun updateIngredient(index: Int, name: String, quantity: String) {
+        // Create a mutable list of ingredients
         val currentList = _ingredients.value.toMutableList()
+        // Create a new ingredient state
         val newIngredient = IngredientState(name, quantity)
         if (index < currentList.size) {
+            // Update the existing ingredient
             currentList[index] = newIngredient
         } else {
+            // Add a new ingredient
             currentList.add(newIngredient)
         }
+        // Update the ingredients state
         _ingredients.value = currentList
     }
 
     fun updateStep(index: Int, description: String) {
+        // Create a mutable list of steps
         val currentList = _steps.value.toMutableList()
+        // Update the step
         if (index < currentList.size) {
             currentList[index] = description
         } else {
+            // Add a new step
             currentList.add(description)
         }
+        // Update the steps state
         _steps.value = currentList
     }
 
     // Method to save the recipe
     fun saveRecipe() {
         viewModelScope.launch {
+            // Create a recipe entity
             val recipeEntity = RecipeEntity(
                 recipeTitle = _recipeTitle.value,
                 recipeDescription = _recipeDescription.value
             )
+            // Call the insertRecipe function from the RecipeUseCase to save the recipe
             val recipeId = recipeUseCase.insertRecipe(recipeEntity).toInt()
 
+            // Save ingredients
             _ingredients.value.forEach { ingredientState ->
+                // Create an ingredient entity
                 val ingredientEntity = IngredientEntity(
                     recipeId = recipeId,
                     name = ingredientState.name,
                     quantity = ingredientState.quantity
                 )
+                // Call the addIngredient function from the IngredientUseCase to save each ingredient
                 ingredientUseCase.addIngredient(ingredientEntity)
             }
 
+            // Save steps
             _steps.value.forEachIndexed { index, stepDescription ->
+                // Create a step entity
                 val stepEntity = StepEntity(
                     recipeId = recipeId,
                     description = stepDescription,
                     stepNumber = index + 1
                 )
+                // Call the insertStep function from the StepUseCase to save each step
                 stepUseCase.insertStep(stepEntity)
             }
         }
