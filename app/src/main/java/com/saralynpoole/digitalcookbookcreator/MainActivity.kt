@@ -16,6 +16,8 @@ import com.saralynpoole.digitalcookbookcreator.presentation.ui.DeleteRecipeScree
 import com.saralynpoole.digitalcookbookcreator.presentation.ui.FormatRecipeScreen
 import HomeScreen
 import android.annotation.SuppressLint
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.saralynpoole.digitalcookbookcreator.presentation.ui.ManuallyInputRecipeScreen
 import com.saralynpoole.digitalcookbookcreator.presentation.ui.UpdateRecipeScreen
 import com.saralynpoole.digitalcookbookcreator.presentation.ui.ViewAllRecipesScreen
@@ -107,33 +109,15 @@ class MainActivity : ComponentActivity() {
                     // Composable for the update recipe screen
                     composable(
                         "update_recipe/{recipeId}",
-                        arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+                        arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
                     ) { backStackEntry ->
-                        val viewModel: RecipeViewModel = viewModel(
-                            factory = RecipeViewModel.Factory()
-                        )
-                        val recipeId = backStackEntry.arguments?.getString("recipeId")
+                        val viewModel: RecipeViewModel = viewModel(factory = RecipeViewModel.Factory())
+                        val recipeId = backStackEntry.arguments?.getInt("recipeId") ?: return@composable
+
                         UpdateRecipeScreen(
-                            // Initializes the view model
-                            title = viewModel.recipeTitle.value,
-                            description = viewModel.recipeDescription.value,
-                            ingredients = viewModel.ingredients.value.map { "${it.name} (${it.quantity})" },
-                            steps = viewModel.steps.value,
-                            onTitleChange = { viewModel.updateTitle(it) },
-                            onDescriptionChange = { viewModel.updateDescription(it) },
-                            onIngredientChange = { index, value ->
-                                // Parse name and quantity from combined string
-                                val parts = value.split(" (", ")")
-                                val name = parts.getOrNull(0) ?: ""
-                                val quantity = parts.getOrNull(1) ?: ""
-                                viewModel.updateIngredient(index, name, quantity)
-                            },
-                            onStepChange = { index, value -> viewModel.updateStep(index, value) },
-                            onSaveChanges = { viewModel.saveRecipe() },
-                            onViewAllRecipes = {
-                                // Navigate back to the view recipes screen
-                                navController.navigate("view_recipes")
-                            }
+                            recipeId = recipeId,
+                            viewModel = viewModel,
+                            onNavigateBack = { navController.navigateUp() }
                         )
                     }
                     // Composable for the delete recipe screen
