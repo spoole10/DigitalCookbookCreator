@@ -1,7 +1,9 @@
 package com.saralynpoole.digitalcookbookcreator.di
 
 import android.content.Context
+import android.util.Log
 import com.saralynpoole.digitalcookbookcreator.data.database.AppDatabase
+import com.saralynpoole.digitalcookbookcreator.data.database.exceptions.DatabaseConnectionException
 import com.saralynpoole.digitalcookbookcreator.data.repository.IngredientRepository
 import com.saralynpoole.digitalcookbookcreator.data.repository.RecipeRepository
 import com.saralynpoole.digitalcookbookcreator.data.repository.StepRepository
@@ -27,18 +29,25 @@ object DependencyContainer {
      * Initializes the dependency container.
      */
     fun initialize(context: Context) {
-        // Initialize the database instance
-        database = AppDatabase.getDatabase(context)
+        try {
+            // Initialize the database instance
+            database = AppDatabase.getDatabase(context)
 
-        // Initialize the repositories with their corresponding DAOs from the database
-        recipeRepository = RecipeRepository(database!!.recipeDAO())
-        ingredientRepository = IngredientRepository(database!!.ingredientDAO())
-        stepRepository = StepRepository(database!!.stepDAO())
+            // Initialize the repositories with their corresponding DAOs from the database
+            recipeRepository = RecipeRepository(database!!.recipeDAO())
+            ingredientRepository = IngredientRepository(database!!.ingredientDAO())
+            stepRepository = StepRepository(database!!.stepDAO())
 
-        // Initialize the use cases with their corresponding repositories
-        recipeUseCase = RecipeUseCase(recipeRepository!!)
-        ingredientUseCase = IngredientUseCase(ingredientRepository!!)
-        stepUseCase = StepUseCase(stepRepository!!)
+            // Initialize the use cases with their corresponding repositories
+            recipeUseCase = RecipeUseCase(recipeRepository!!)
+            ingredientUseCase = IngredientUseCase(ingredientRepository!!)
+            stepUseCase = StepUseCase(stepRepository!!)
+        } catch (e: DatabaseConnectionException) {
+            Log.e("DependencyContainer", e.message ?: "Database connection error", e)
+            // Rethrow the exception to allow the UI layer to handle it
+            throw e
+        }
+
     }
 
     // Getter methods for the use cases
