@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,7 +29,8 @@ fun CreateNewRecipeScreen(
     // Navigation functions
     navigateToManuallyInputRecipe: () -> Unit,
     navigateToFormatRecipe: () -> Unit,
-    navigateToHome: () -> Unit
+    navigateToHome: () -> Unit,
+    navigateToCamera: () -> Unit
 ) {
     // Background for the screen
     Surface(
@@ -68,18 +72,13 @@ fun CreateNewRecipeScreen(
                     )
                 }
 
-                // Button to navigate to the format a recipe screen.
-                // In future a future release, this will be updated to open the camera
+                // Button to navigate to the camera.
                 Button(
-                    onClick = navigateToFormatRecipe,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 56.dp)
+                    onClick = navigateToCamera,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Take a picture of a recipe",
-                        fontSize = 16.sp
-                    )
+                    Icon(Icons.Default.Camera, contentDescription = "Camera")
+                    Text("Take a picture of a recipe")
                 }
 
                 // Button to navigate back to the home screen

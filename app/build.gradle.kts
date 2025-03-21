@@ -65,7 +65,39 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
     implementation ("androidx.room:room-ktx:2.5.0")
-    val hilt_version = "2.44"
+    // CameraX dependencies
+    implementation ("androidx.camera:camera-core:1.4.0")
+    implementation ("androidx.camera:camera-camera2:1.4.0")
+    implementation ("androidx.camera:camera-lifecycle:1.4.0")
+    implementation ("androidx.camera:camera-view:1.4.0")
+
+    // ML Kit for text recognition
+    implementation ("com.google.mlkit:text-recognition:16.0.0")
+
+    // For handling permissions
+    implementation ("com.google.accompanist:accompanist-permissions:0.28.0")
+
+    // For handling image loading and manipulation
+    implementation ("io.coil-kt:coil-compose:2.4.0")
+
+    // CameraX dependencies
+    implementation ("androidx.camera:camera-core:1.4.0")
+    implementation ("androidx.camera:camera-camera2:1.4.0")
+    implementation ("androidx.camera:camera-lifecycle:1.4.0")
+    implementation ("androidx.camera:camera-view:1.4.0")
+    implementation ("androidx.compose.material:material-icons-extended:1.5.0")
+
+    // ML Kit Text Recognition
+    implementation ("com.google.mlkit:text-recognition:16.0.0")
+
+    // Lifecycle components
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+
+    // Permission handling
+    implementation ("com.google.accompanist:accompanist-permissions:0.30.1")
+
+    //val hilt_version = "2.44"
    // implementation ("com.google.dagger:hilt-android:$hilt_version")
    // ksp("com.google.dagger:hilt-android-compiler:$hilt_version")
 

@@ -1,5 +1,6 @@
 package com.saralynpoole.digitalcookbookcreator.application
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -22,8 +23,17 @@ class RecipeViewModel(
     // Use cases for recipes, ingredients, and steps
     private val recipeUseCase: RecipeUseCase,
     private val ingredientUseCase: IngredientUseCase,
-    private val stepUseCase: StepUseCase
+    private val stepUseCase: StepUseCase,
+    private val appContext: Context? = null
 ) : ViewModel() {
+    companion object {
+        // Constants for validation
+        const val MAX_TITLE_LENGTH = 100
+        const val MAX_DESCRIPTION_LENGTH = 500
+        const val MAX_INGREDIENT_NAME_LENGTH = 100
+        const val MAX_INGREDIENT_QUANTITY_LENGTH = 100
+        const val MAX_STEP_DESCRIPTION_LENGTH = 300
+    }
 
     // Mutable states
     private val _recipeTitle = MutableStateFlow("")
@@ -64,10 +74,26 @@ class RecipeViewModel(
     private val _stepsError = MutableStateFlow(false)
     val stepsError = _stepsError.asStateFlow()
 
-    // Function initialize to load all recipes when the ViewModel is created
+    private val _titleLengthError = MutableStateFlow(false)
+    val titleLengthError = _titleLengthError.asStateFlow()
+
+    private val _descriptionLengthError = MutableStateFlow(false)
+    val descriptionLengthError = _descriptionLengthError.asStateFlow()
+
+    private val _ingredientNameLengthError = MutableStateFlow<List<Boolean>>(emptyList())
+    val ingredientNameLengthError = _ingredientNameLengthError.asStateFlow()
+
+    private val _ingredientQuantityLengthError = MutableStateFlow<List<Boolean>>(emptyList())
+    val ingredientQuantityLengthError = _ingredientQuantityLengthError.asStateFlow()
+
+    private val _stepDescriptionLengthError = MutableStateFlow<List<Boolean>>(emptyList())
+    val stepDescriptionLengthError = _stepDescriptionLengthError.asStateFlow()
+
+    // Function to load all recipes when the ViewModel is created
     init {
         loadAllRecipes()
     }
+
 
     // Function to load all recipes
     private fun loadAllRecipes() {
@@ -106,7 +132,6 @@ class RecipeViewModel(
         }
     }
 
-    // Validate all fields
     private fun validateFields(): Boolean {
         var isValid = true
 
@@ -118,8 +143,23 @@ class RecipeViewModel(
             _titleError.value = false
         }
 
+        // Validate title length
+        if (_recipeTitle.value.length > MAX_TITLE_LENGTH) {
+            _titleLengthError.value = true
+            isValid = false
+        } else {
+            _titleLengthError.value = false
+        }
+
+        // Validate description length
+        if (_recipeDescription.value.length > MAX_DESCRIPTION_LENGTH) {
+            _descriptionLengthError.value = true
+            isValid = false
+        } else {
+            _descriptionLengthError.value = false
+        }
+
         // Validate ingredients
-        // There must be at least one ingredient in the recipe
         val validIngredients = _ingredients.value.filter { it.name.isNotBlank() }
         if (validIngredients.isEmpty()) {
             _ingredientsError.value = true
@@ -128,14 +168,30 @@ class RecipeViewModel(
             _ingredientsError.value = false
         }
 
+        // Validate ingredient name and quantity lengths
+        val nameErrors = _ingredients.value.map { it.name.length > MAX_INGREDIENT_NAME_LENGTH }
+        val quantityErrors = _ingredients.value.map { it.quantity.length > MAX_INGREDIENT_QUANTITY_LENGTH }
+        _ingredientNameLengthError.value = nameErrors
+        _ingredientQuantityLengthError.value = quantityErrors
+
+        if (nameErrors.any { it } || quantityErrors.any { it }) {
+            isValid = false
+        }
+
         // Validate steps
-        // There must be at least one step in the recipe
         val validSteps = _steps.value.filter { it.isNotBlank() }
         if (validSteps.isEmpty()) {
             _stepsError.value = true
             isValid = false
         } else {
             _stepsError.value = false
+        }
+
+        // Validate step description lengths
+        val stepErrors = _steps.value.map { it.length > MAX_STEP_DESCRIPTION_LENGTH }
+        _stepDescriptionLengthError.value = stepErrors
+        if (stepErrors.any { it }) {
+            isValid = false
         }
 
         return isValid
@@ -209,6 +265,7 @@ class RecipeViewModel(
         return true
     }
 
+
     // Function to delete a recipe by its ID
     fun deleteRecipe(recipeId: Int) {
         // Find the recipe to delete and delete it
@@ -243,10 +300,12 @@ class RecipeViewModel(
         _recipeTitle.value = newTitle
         // Validate title as user types
         _titleError.value = newTitle.isBlank()
+        _titleLengthError.value = newTitle.length > MAX_TITLE_LENGTH
     }
 
     fun updateDescription(newDescription: String) {
         _recipeDescription.value = newDescription
+        _descriptionLengthError.value = newDescription.length > MAX_DESCRIPTION_LENGTH
     }
 
     fun updateIngredient(index: Int, name: String, quantity: String) {
@@ -266,6 +325,12 @@ class RecipeViewModel(
 
         // Validate ingredients after update
         _ingredientsError.value = currentList.none { it.name.isNotBlank() }
+
+        // Validate ingredient name and quantity lengths
+        val nameErrors = currentList.map { it.name.length > MAX_INGREDIENT_NAME_LENGTH }
+        val quantityErrors = currentList.map { it.quantity.length > MAX_INGREDIENT_QUANTITY_LENGTH }
+        _ingredientNameLengthError.value = nameErrors
+        _ingredientQuantityLengthError.value = quantityErrors
     }
 
     fun updateStep(index: Int, description: String) {
@@ -283,6 +348,10 @@ class RecipeViewModel(
 
         // Validate steps after update
         _stepsError.value = currentList.none { it.isNotBlank() }
+
+        // Validate step description lengths
+        val stepErrors = currentList.map { it.length > MAX_STEP_DESCRIPTION_LENGTH }
+        _stepDescriptionLengthError.value = stepErrors
     }
 
     // Functions to remove ingredients and steps
@@ -367,6 +436,7 @@ class RecipeViewModel(
         }
     }
 
+
     // Function to reset form values
     private fun resetForm() {
         _recipeTitle.value = ""
@@ -374,18 +444,24 @@ class RecipeViewModel(
         _ingredients.value = emptyList()
         _steps.value = emptyList()
         _titleError.value = false
+        _titleLengthError.value = false
+        _descriptionLengthError.value = false
         _ingredientsError.value = false
+        _ingredientNameLengthError.value = emptyList()
+        _ingredientQuantityLengthError.value = emptyList()
         _stepsError.value = false
+        _stepDescriptionLengthError.value = emptyList()
     }
 
     // Factory class for creating instances of the RecipeViewModel
-    class Factory : ViewModelProvider.Factory {
+    class Factory(private val context: Context? = null) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return RecipeViewModel(
                 DependencyContainer.getRecipeUseCase(),
                 DependencyContainer.getIngredientUseCase(),
-                DependencyContainer.getStepUseCase()
+                DependencyContainer.getStepUseCase(),
+                context
             ) as T
         }
     }

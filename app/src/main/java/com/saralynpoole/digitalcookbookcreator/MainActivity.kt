@@ -18,6 +18,8 @@ import HomeScreen
 import android.annotation.SuppressLint
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import com.saralynpoole.digitalcookbookcreator.presentation.ui.CameraScreen
 import com.saralynpoole.digitalcookbookcreator.presentation.ui.ManuallyInputRecipeScreen
 import com.saralynpoole.digitalcookbookcreator.presentation.ui.UpdateRecipeScreen
 import com.saralynpoole.digitalcookbookcreator.presentation.ui.ViewAllRecipesScreen
@@ -35,6 +37,8 @@ class MainActivity : ComponentActivity() {
             DigitalCookbookCreatorTheme {
                 // Sets up the navigation graph for the app
                 val navController = rememberNavController()
+                val viewModel: RecipeViewModel = viewModel(factory = RecipeViewModel.Factory(LocalContext.current))
+
                 NavHost(
                     navController = navController,
                     startDestination = "home"
@@ -55,18 +59,10 @@ class MainActivity : ComponentActivity() {
                     // Composable for the create recipe screen
                     composable("create_recipe") {
                         CreateNewRecipeScreen(
-                            // Navigates to the manually input recipe screen
-                            navigateToManuallyInputRecipe = {
-                                navController.navigate("manually_input_recipe")
-                            },
-                            // Navigates to the format recipe screen
-                            navigateToFormatRecipe = {
-                                navController.navigate("format_recipe")
-                            },
-                            // Navigates back to the home screen
-                            navigateToHome = {
-                                navController.navigate("home")
-                            }
+                            navigateToManuallyInputRecipe = { navController.navigate("manually_input_recipe") },
+                            navigateToFormatRecipe = { navController.navigate("format_recipe") },
+                            navigateToHome = { navController.navigate("home") },
+                            navigateToCamera = { navController.navigate("camera_screen") }
                         )
                     }
                     // Composable for the manually input recipe screen
@@ -143,29 +139,11 @@ class MainActivity : ComponentActivity() {
                     }
                     // Composable for the format recipe screen
                     composable("format_recipe") {
-                        val viewModel: RecipeViewModel = viewModel(
-                            factory = RecipeViewModel.Factory()
-                        )
                         FormatRecipeScreen(
-                            title = viewModel.recipeTitle.value,
-                            description = viewModel.recipeDescription.value,
-                            ingredients = viewModel.ingredients.value.map { "${it.name} (${it.quantity})" },
-                            steps = viewModel.steps.value,
-                            onTitleChange = { viewModel.updateTitle(it) },
-                            onDescriptionChange = { viewModel.updateDescription(it) },
-                            onIngredientChange = { index, value ->
-                                // Parse name and quantity from combined string
-                                val parts = value.split(" (", ")")
-                                val name = parts.getOrNull(0) ?: ""
-                                val quantity = parts.getOrNull(1) ?: ""
-                                viewModel.updateIngredient(index, name, quantity)
-                            },
-                            onStepChange = { index, value -> viewModel.updateStep(index, value) },
-                            onSaveRecipe = { viewModel.saveRecipe() },
-                            onRetakeRecipePhoto = { /* Retake recipe photo */ },
-                            onViewAllRecipes = {
-                                navController.navigate("view_recipes")
-                            }
+                            viewModel = viewModel,
+                            onSaveComplete = { navController.navigate("view_recipes") },
+                            onRetakeRecipePhoto = { navController.navigate("camera_screen") },
+                            onViewAllRecipes = { navController.navigate("view_recipes") }
                         )
                     }
                     // Composable for the view a single recipe screen
@@ -191,6 +169,14 @@ class MainActivity : ComponentActivity() {
                                     popUpTo("view_recipes") { inclusive = true }
                                 }
                             }
+                        )
+                    }
+                    // Composable for the camera screen
+                    composable("camera_screen") {
+                        CameraScreen(
+                            viewModel = viewModel,
+                            onPhotoTaken = { navController.navigate("format_recipe") },
+                            onNavigateBack = { navController.popBackStack() }
                         )
                     }
                 }

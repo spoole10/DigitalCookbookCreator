@@ -27,7 +27,7 @@ object DependencyContainer {
      * Initializes the dependency container.
      */
     fun initialize(context: Context) {
-        // Initialize the dataase instance
+        // Initialize the database instance
         database = AppDatabase.getDatabase(context)
 
         // Initialize the repositories with their corresponding DAOs from the database
