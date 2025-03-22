@@ -14,25 +14,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.saralynpoole.digitalcookbookcreator.application.RecipeViewModel
 
 /**
  * Delete a recipe screen.
  */
 @Composable
 fun DeleteRecipeScreen(
-    // Recipe property
-    recipeTitle: String,
+    // View model for the recipe
+    viewModel: RecipeViewModel,
 
     // Event handlers
     onConfirmDelete: () -> Unit,
     onCancel: () -> Unit
 ) {
+    // Collect states from the viewModel
+    val recipeTitle by viewModel.recipeTitle.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
     // Background for the screen
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -55,6 +63,16 @@ fun DeleteRecipeScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 32.dp, top = 32.dp)
             )
+            // Show error message if it exists
+            errorMessage?.let { error ->
+                Text(
+                    text = error,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
             // Confirmation message text
             Text(
                 text = "Are you sure you want to delete the recipe '$recipeTitle'?",

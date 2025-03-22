@@ -271,6 +271,9 @@ class RecipeViewModel(
         // Find the recipe to delete and delete it
         viewModelScope.launch {
             try {
+                /*// Uncomment to simulate an exception
+                _errorMessage.value = "Simulated error";
+                throw Exception("Simulated error")*/
                 _isLoading.value = true
                 val recipeToDelete = _allRecipes.value.find { it.recipe.recipeId == recipeId }
                 recipeToDelete?.let {
@@ -387,6 +390,10 @@ class RecipeViewModel(
 
         viewModelScope.launch {
             try {
+              /*  // Uncomment to simulate an exception
+                _errorMessage.value = "Simulated error";
+                throw Exception("Simulated error")*/
+
                 _isLoading.value = true
                 _errorMessage.value = null
 

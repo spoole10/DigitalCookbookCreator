@@ -16,6 +16,7 @@ import com.saralynpoole.digitalcookbookcreator.presentation.ui.DeleteRecipeScree
 import com.saralynpoole.digitalcookbookcreator.presentation.ui.FormatRecipeScreen
 import HomeScreen
 import android.annotation.SuppressLint
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -124,15 +125,23 @@ class MainActivity : ComponentActivity() {
                         val viewModel: RecipeViewModel = viewModel(
                             factory = RecipeViewModel.Factory()
                         )
-                        val recipeId = backStackEntry.arguments?.getString("recipeId")
+                        val recipeId = backStackEntry.arguments?.getString("recipeId")?.toIntOrNull() ?: 0
+
+                        // Load the recipe when the screen is shown
+                        LaunchedEffect(recipeId) {
+                            viewModel.loadRecipe(recipeId)
+                        }
+
                         DeleteRecipeScreen(
-                            recipeTitle = viewModel.recipeTitle.value,
+                            viewModel = viewModel,
                             onConfirmDelete = {
-                                viewModel.deleteRecipe(recipeId?.toInt() ?: 0)
-                                navController.navigate("view_recipes")
+                                viewModel.deleteRecipe(recipeId)
+                                // Only navigate back if there are no errors
+                                if (viewModel.errorMessage.value == null) {
+                                    navController.navigate("view_recipes")
+                                }
                             },
                             onCancel = {
-                                // Navigates back to the view recipes screen
                                 navController.navigate("view_recipes")
                             }
                         )
