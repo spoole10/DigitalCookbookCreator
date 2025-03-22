@@ -11,9 +11,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -50,8 +54,13 @@ fun ManuallyInputRecipeScreen(
 
     // Validation states
     val titleError by viewModel.titleError.collectAsState()
+    val titleLengthError by viewModel.titleLengthError.collectAsState()
+    val descriptionLengthError by viewModel.descriptionLengthError.collectAsState()
     val ingredientsError by viewModel.ingredientsError.collectAsState()
+    val ingredientNameLengthError by viewModel.ingredientNameLengthError.collectAsState()
+    val ingredientQuantityLengthError by viewModel.ingredientQuantityLengthError.collectAsState()
     val stepsError by viewModel.stepsError.collectAsState()
+    val stepDescriptionLengthError by viewModel.stepDescriptionLengthError.collectAsState()
 
     // UI state for showing a success dialog
     var showSuccessDialog by remember { mutableStateOf(false) }
@@ -138,12 +147,20 @@ fun ManuallyInputRecipeScreen(
                             onValueChange = { viewModel.updateTitle(it) },
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text("Recipe Title") },
-                            isError = titleError,
+                            isError = titleError || titleLengthError,
                             singleLine = true
                         )
                         if (titleError) {
                             Text(
                                 text = "Title is required",
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                            )
+                        }
+                        if (titleLengthError) {
+                            Text(
+                                text = "Title exceeds maximum length of ${RecipeViewModel.MAX_TITLE_LENGTH} characters",
                                 color = MaterialTheme.colorScheme.error,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(start = 4.dp, top = 4.dp)
@@ -159,8 +176,17 @@ fun ManuallyInputRecipeScreen(
                             onValueChange = { viewModel.updateDescription(it) },
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text("Description") },
-                            minLines = 3
+                            minLines = 3,
+                            isError = descriptionLengthError
                         )
+                        if (descriptionLengthError) {
+                            Text(
+                                text = "Description exceeds maximum length of ${RecipeViewModel.MAX_DESCRIPTION_LENGTH} characters",
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                            )
+                        }
                     }
 
                     // Ingredients section
@@ -174,6 +200,7 @@ fun ManuallyInputRecipeScreen(
                             Button(
                                 onClick = { viewModel.updateIngredient(ingredients.size, "", "") }
                             ) {
+                                Icon(Icons.Default.Add, contentDescription = "Add ingredient")
                                 Text("Add Ingredient")
                             }
                         }
@@ -193,26 +220,61 @@ fun ManuallyInputRecipeScreen(
                             ingredients.forEachIndexed { index, ingredient ->
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     OutlinedTextField(
                                         value = ingredient.name,
-                                        onValueChange = { viewModel.updateIngredient(index, it, ingredient.quantity) },
+                                        onValueChange = {
+                                            viewModel.updateIngredient(
+                                                index,
+                                                it,
+                                                ingredient.quantity
+                                            )
+                                        },
                                         label = { Text("Ingredient") },
                                         modifier = Modifier.weight(2f),
-                                        singleLine = true
+                                        singleLine = true,
+                                        isError = ingredientNameLengthError.getOrNull(index) == true
                                     )
                                     OutlinedTextField(
                                         value = ingredient.quantity,
-                                        onValueChange = { viewModel.updateIngredient(index, ingredient.name, it) },
+                                        onValueChange = {
+                                            viewModel.updateIngredient(
+                                                index,
+                                                ingredient.name,
+                                                it
+                                            )
+                                        },
                                         label = { Text("Qty") },
                                         modifier = Modifier.weight(1f),
-                                        singleLine = true
+                                        singleLine = true,
+                                        isError = ingredientQuantityLengthError.getOrNull(index) == true
                                     )
                                     IconButton(onClick = { viewModel.removeIngredient(index) }) {
-                                        Text("X")
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = "Remove ingredient",
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
                                     }
+                                }
+                                // Error messages for ingredient fields
+                                if (ingredientNameLengthError.getOrNull(index) == true) {
+                                    Text(
+                                        text = "Ingredient name exceeds maximum length of ${RecipeViewModel.MAX_INGREDIENT_NAME_LENGTH} characters",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                                    )
+                                }
+                                if (ingredientQuantityLengthError.getOrNull(index) == true) {
+                                    Text(
+                                        text = "Quantity exceeds maximum length of ${RecipeViewModel.MAX_INGREDIENT_QUANTITY_LENGTH} characters",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                                    )
                                 }
                             }
                         }
@@ -229,6 +291,7 @@ fun ManuallyInputRecipeScreen(
                             Button(
                                 onClick = { viewModel.updateStep(steps.size, "") }
                             ) {
+                                Icon(Icons.Default.Add, contentDescription = "Add step")
                                 Text("Add Step")
                             }
                         }
@@ -246,20 +309,36 @@ fun ManuallyInputRecipeScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             steps.forEachIndexed { index, step ->
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Text("${index + 1}.", modifier = Modifier.padding(8.dp))
-                                    OutlinedTextField(
-                                        value = step,
-                                        onValueChange = { viewModel.updateStep(index, it) },
-                                        label = { Text("Step Description") },
-                                        modifier = Modifier.weight(1f),
-                                        minLines = 2
-                                    )
-                                    IconButton(onClick = { viewModel.removeStep(index) }) {
-                                        Text("X")
+                                Column {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text("${index + 1}.", modifier = Modifier.padding(8.dp))
+                                        OutlinedTextField(
+                                            value = step,
+                                            onValueChange = { viewModel.updateStep(index, it) },
+                                            label = { Text("Step Description") },
+                                            modifier = Modifier.weight(1f),
+                                            minLines = 2,
+                                            isError = stepDescriptionLengthError.getOrNull(index) == true
+                                        )
+                                        IconButton(onClick = { viewModel.removeStep(index) }) {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = "Remove step",
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    }
+                                    // Error message for step description
+                                    if (stepDescriptionLengthError.getOrNull(index) == true) {
+                                        Text(
+                                            text = "Step description exceeds maximum length of ${RecipeViewModel.MAX_STEP_DESCRIPTION_LENGTH} characters",
+                                            color = MaterialTheme.colorScheme.error,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                                        )
                                     }
                                 }
                             }
@@ -284,7 +363,13 @@ fun ManuallyInputRecipeScreen(
                             }
                         },
                         modifier = Modifier.weight(1f),
-                        enabled = !titleError && !ingredientsError && !stepsError
+                        enabled = !titleError && !titleLengthError &&
+                                !descriptionLengthError &&
+                                !ingredientsError &&
+                                ingredientNameLengthError.none { it } &&
+                                ingredientQuantityLengthError.none { it } &&
+                                !stepsError &&
+                                stepDescriptionLengthError.none { it }
                     ) {
                         Text("Save Recipe")
                     }
