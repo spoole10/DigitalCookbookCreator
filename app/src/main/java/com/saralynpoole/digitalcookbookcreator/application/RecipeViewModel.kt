@@ -54,6 +54,7 @@ class RecipeViewModel(
     private val _currentRecipe = MutableStateFlow<RecipeWithRelations?>(null)
     val currentRecipe = _currentRecipe.asStateFlow()
 
+    // Loading state flag
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
@@ -113,6 +114,7 @@ class RecipeViewModel(
                 recipeUseCase.getRecipe(recipeId).collect { recipes ->
                     val recipe = recipes.firstOrNull()
                     recipe?.let {
+                        // Update state with recipe details
                         _recipeTitle.value = it.recipe.recipeTitle
                         _recipeDescription.value = it.recipe.recipeDescription
                         _ingredients.value = it.ingredients.map { ingredient ->
@@ -135,7 +137,7 @@ class RecipeViewModel(
     private fun validateFields(): Boolean {
         var isValid = true
 
-        // Validate title
+        // Validate title (required field)
         if (_recipeTitle.value.isBlank()) {
             _titleError.value = true
             isValid = false
@@ -159,7 +161,7 @@ class RecipeViewModel(
             _descriptionLengthError.value = false
         }
 
-        // Validate ingredients
+        // Validate ingredients (at least one valid ingredient is required)
         val validIngredients = _ingredients.value.filter { it.name.isNotBlank() }
         if (validIngredients.isEmpty()) {
             _ingredientsError.value = true
@@ -305,16 +307,18 @@ class RecipeViewModel(
     // Methods to update the title, description, ingredients, and steps
     fun updateTitle(newTitle: String) {
         _recipeTitle.value = newTitle
-        // Validate title as user types
+        // Validate title as the user types
         _titleError.value = newTitle.isBlank()
         _titleLengthError.value = newTitle.length > MAX_TITLE_LENGTH
     }
 
+    // Updates the recipe description and validates it
     fun updateDescription(newDescription: String) {
         _recipeDescription.value = newDescription
         _descriptionLengthError.value = newDescription.length > MAX_DESCRIPTION_LENGTH
     }
 
+    // Updates an ingredient at the given index and validates it
     fun updateIngredient(index: Int, name: String, quantity: String) {
         // Create a mutable list of ingredients
         val currentList = _ingredients.value.toMutableList()
@@ -340,6 +344,7 @@ class RecipeViewModel(
         _ingredientQuantityLengthError.value = quantityErrors
     }
 
+    // Updates a step at the given index and validates it
     fun updateStep(index: Int, description: String) {
         // Create a mutable list of steps
         val currentList = _steps.value.toMutableList()
@@ -361,7 +366,7 @@ class RecipeViewModel(
         _stepDescriptionLengthError.value = stepErrors
     }
 
-    // Functions to remove ingredients and steps
+    // Function to remove an ingredient
     fun removeIngredient(index: Int) {
         val currentList = _ingredients.value.toMutableList()
         if (index < currentList.size) {
@@ -373,6 +378,8 @@ class RecipeViewModel(
         }
     }
 
+
+    // Function to remove a step
     fun removeStep(index: Int) {
         val currentList = _steps.value.toMutableList()
         if (index < currentList.size) {
@@ -384,7 +391,8 @@ class RecipeViewModel(
         }
     }
 
-    // Method to save the recipe
+    // Validates all recipe fields, then saves it to the database
+    // After a successful save, the form is reset
     fun saveRecipe() {
         // Validate the recipe data
         if (!validateFields()) {
@@ -448,7 +456,7 @@ class RecipeViewModel(
     }
 
 
-    // Function to reset form values
+    // Function to reset form values and validation states
     private fun resetForm() {
         _recipeTitle.value = ""
         _recipeDescription.value = ""

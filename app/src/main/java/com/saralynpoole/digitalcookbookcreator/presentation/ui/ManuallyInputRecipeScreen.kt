@@ -38,13 +38,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saralynpoole.digitalcookbookcreator.application.RecipeViewModel
 
+/**
+ * Manually input a recipe screen
+ */
 @Composable
 fun ManuallyInputRecipeScreen(
     viewModel: RecipeViewModel,
     onViewAllRecipes: () -> Unit
 ) {
+    // Scroll state
     val scrollState = rememberScrollState()
-    // Collect state from the ViewModel
+
+    // Collect states from the ViewModel
     val title by viewModel.recipeTitle.collectAsState()
     val description by viewModel.recipeDescription.collectAsState()
     val ingredients by viewModel.ingredients.collectAsState()
@@ -62,7 +67,7 @@ fun ManuallyInputRecipeScreen(
     val stepsError by viewModel.stepsError.collectAsState()
     val stepDescriptionLengthError by viewModel.stepDescriptionLengthError.collectAsState()
 
-    // UI state for showing a success dialog
+    // State for success dialog
     var showSuccessDialog by remember { mutableStateOf(false) }
 
     // Error dialog
@@ -79,7 +84,7 @@ fun ManuallyInputRecipeScreen(
         )
     }
 
-    // Success Dialog
+    // Success dialog  shown after a successful update
     if (showSuccessDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -105,6 +110,7 @@ fun ManuallyInputRecipeScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        // Show loading indicator while saving the recipe
         if (isLoading) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -115,7 +121,9 @@ fun ManuallyInputRecipeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
                 Text("Saving recipe...")
             }
-        } else {
+        }
+        else {
+            // Main form content
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -150,6 +158,7 @@ fun ManuallyInputRecipeScreen(
                             isError = titleError || titleLengthError,
                             singleLine = true
                         )
+                        // Error messages for title validation
                         if (titleError) {
                             Text(
                                 text = "Title is required",
@@ -168,7 +177,7 @@ fun ManuallyInputRecipeScreen(
                         }
                     }
 
-                    // Description field
+                    // Description field with validation
                     Column {
                         Text("Description:", fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 4.dp))
                         OutlinedTextField(
@@ -189,7 +198,7 @@ fun ManuallyInputRecipeScreen(
                         }
                     }
 
-                    // Ingredients section
+                    // Ingredients section with an add button and validation
                     Column {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -205,6 +214,7 @@ fun ManuallyInputRecipeScreen(
                             }
                         }
 
+                        // Error message if there are no ingredients
                         if (ingredientsError) {
                             Text(
                                 text = "At least one ingredient is required",
@@ -214,6 +224,7 @@ fun ManuallyInputRecipeScreen(
                             )
                         }
 
+                        // List of ingredient input fields
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -223,6 +234,7 @@ fun ManuallyInputRecipeScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
+                                    // Ingredient name field with validation
                                     OutlinedTextField(
                                         value = ingredient.name,
                                         onValueChange = {
@@ -237,6 +249,7 @@ fun ManuallyInputRecipeScreen(
                                         singleLine = true,
                                         isError = ingredientNameLengthError.getOrNull(index) == true
                                     )
+                                    // Ingredient quantity field with validation
                                     OutlinedTextField(
                                         value = ingredient.quantity,
                                         onValueChange = {
@@ -251,6 +264,7 @@ fun ManuallyInputRecipeScreen(
                                         singleLine = true,
                                         isError = ingredientQuantityLengthError.getOrNull(index) == true
                                     )
+                                    // Delete button for removing an ingredient
                                     IconButton(onClick = { viewModel.removeIngredient(index) }) {
                                         Icon(
                                             Icons.Default.Delete,
@@ -296,6 +310,7 @@ fun ManuallyInputRecipeScreen(
                             }
                         }
 
+                        // Error message displayed if the recipe has no steps
                         if (stepsError) {
                             Text(
                                 text = "At least one step is required",
@@ -305,6 +320,7 @@ fun ManuallyInputRecipeScreen(
                             )
                         }
 
+                        // List of step input fields
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
@@ -314,7 +330,9 @@ fun ManuallyInputRecipeScreen(
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
+                                        // Step number label
                                         Text("${index + 1}.", modifier = Modifier.padding(8.dp))
+                                        // Step description field with validation
                                         OutlinedTextField(
                                             value = step,
                                             onValueChange = { viewModel.updateStep(index, it) },
@@ -323,6 +341,7 @@ fun ManuallyInputRecipeScreen(
                                             minLines = 2,
                                             isError = stepDescriptionLengthError.getOrNull(index) == true
                                         )
+                                        // Delete button for deleting a step
                                         IconButton(onClick = { viewModel.removeStep(index) }) {
                                             Icon(
                                                 Icons.Default.Delete,
@@ -331,7 +350,7 @@ fun ManuallyInputRecipeScreen(
                                             )
                                         }
                                     }
-                                    // Error message for step description
+                                    // Error message for step description length
                                     if (stepDescriptionLengthError.getOrNull(index) == true) {
                                         Text(
                                             text = "Step description exceeds maximum length of ${RecipeViewModel.MAX_STEP_DESCRIPTION_LENGTH} characters",
@@ -346,23 +365,27 @@ fun ManuallyInputRecipeScreen(
                     }
                 }
 
+                // Adds some vertical space before the action buttons
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Buttons at the bottom
+                // Action buttons at the bottom
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    // Save recipe button (only enabled when there are no validation errors)
                     Button(
                         onClick = {
                             viewModel.saveRecipe()
                             if (errorMessage == null) {
+                                // Show success dialog if there are no errors
                                 showSuccessDialog = true
                             }
                         },
                         modifier = Modifier.weight(1f),
+                        // Validation check to enable or disable the save button
                         enabled = !titleError && !titleLengthError &&
                                 !descriptionLengthError &&
                                 !ingredientsError &&
@@ -373,6 +396,7 @@ fun ManuallyInputRecipeScreen(
                     ) {
                         Text("Save Recipe")
                     }
+                    // Cancel button (returns to the recipe list without saving)
                     TextButton(
                         onClick = onViewAllRecipes,
                         modifier = Modifier.weight(1f)
