@@ -40,6 +40,7 @@ abstract class AppDatabase : RoomDatabase() {
             return INSTANCE ?: synchronized(this) {
                 // Creates a new instance of the database if it doesn't exist
                 val instance = try {
+                    //throw DatabaseConnectionException("Cannot connect to the database.")
                     Room.databaseBuilder(
                         context.applicationContext,
                         AppDatabase::class.java,
@@ -55,39 +56,5 @@ abstract class AppDatabase : RoomDatabase() {
                 instance
             }
         }
-        // Corrupted database simulation
-        // Uncomment to simulate database exception
-   /*     fun getDatabase(context: Context): AppDatabase {
-            val dbFile = context.getDatabasePath("recipe_database")
-            // Delete the database file to simulate corruption
-            if (dbFile.exists()) {
-                dbFile.delete()  // Erase the database
-                Log.d("AppDatabase", "Database file deleted to simulate corruption.")
-            }
-            return INSTANCE ?: synchronized(this) {
-                val dbFile = context.getDatabasePath("recipe_database")
-
-                // Throw an exception if the database file is missing
-                if (!dbFile.exists()) {
-                    Log.e("AppDatabase", "Database file is missing!")
-                    throw DatabaseConnectionException("Database file is missing or corrupted.")
-                }
-
-                // Attempt to create or open the database
-                val instance = try {
-                    Room.databaseBuilder(
-                        context.applicationContext,
-                        AppDatabase::class.java,
-                        "recipe_database"
-                    )
-                        .build()
-                } catch (e: Exception) {
-                    Log.e("AppDatabase", "Error creating database: ${e.message}")
-                    throw DatabaseConnectionException("Unable to connect to database.", e)
-                }
-                INSTANCE = instance
-                instance
-            }
-        }*/
     }
 }
