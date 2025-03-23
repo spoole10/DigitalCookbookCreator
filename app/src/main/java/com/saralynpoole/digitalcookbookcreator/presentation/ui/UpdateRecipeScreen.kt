@@ -74,7 +74,6 @@ fun UpdateRecipeScreen(
     LaunchedEffect(recipeId) {
         viewModel.loadRecipe(recipeId)
     }
-
     // Error dialog
     if (errorMessage != null) {
         AlertDialog(
@@ -364,7 +363,8 @@ fun UpdateRecipeScreen(
                 ) {
                     Button(
                         onClick = {
-                            if (viewModel.updateExistingRecipe(recipeId)) {
+                            viewModel.updateExistingRecipe(recipeId)
+                            if (errorMessage == null) {
                                 showSuccessDialog = true
                             }
                         },

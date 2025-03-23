@@ -207,6 +207,10 @@ class RecipeViewModel(
 
         viewModelScope.launch {
             try {
+                /*// Uncomment to simulate an exception
+                _errorMessage.value = "Simulated error";
+                throw Exception("Simulated error")*/
+
                 _isUpdating.value = true
                 _errorMessage.value = null
 
