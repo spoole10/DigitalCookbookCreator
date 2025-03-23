@@ -40,6 +40,7 @@ abstract class AppDatabase : RoomDatabase() {
             return INSTANCE ?: synchronized(this) {
                 // Creates a new instance of the database if it doesn't exist
                 val instance = try {
+                    // Uncomment to simulate a database connection error.
                     //throw DatabaseConnectionException("Cannot connect to the database.")
                     Room.databaseBuilder(
                         context.applicationContext,
