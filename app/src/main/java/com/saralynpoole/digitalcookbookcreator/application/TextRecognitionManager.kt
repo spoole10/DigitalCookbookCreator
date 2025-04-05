@@ -3,7 +3,16 @@ package com.saralynpoole.digitalcookbookcreator.application
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
 import android.net.Uri
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
+import android.renderscript.ScriptIntrinsicConvolve3x3
 import android.util.Log
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
@@ -80,11 +89,74 @@ class TextRecognitionManager(private val context: Context) {
         return try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
                 val bitmap = BitmapFactory.decodeStream(inputStream)
-                InputImage.fromBitmap(bitmap, 0)
+
+                // Apply preprocessing to improve text recognition
+                val processedBitmap = preprocessImage(bitmap)
+
+                InputImage.fromBitmap(processedBitmap, 0)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to create input image", e)
             null
+        }
+    }
+
+    private fun preprocessImage(original: Bitmap): Bitmap {
+        try {
+            // Create a mutable copy of the bitmap
+            val processed = original.copy(Bitmap.Config.ARGB_8888, true)
+
+            // Apply grayscale for better text detection
+            val colorMatrix = ColorMatrix().apply {
+                setSaturation(0f) // Convert to grayscale
+            }
+
+            // Adjust contrast to make text stand out more
+            colorMatrix.postConcat(ColorMatrix().apply {
+                // Increase contrast
+                setScale(1.2f, 1.2f, 1.2f, 1f)
+            })
+
+            val paint = Paint().apply {
+                colorFilter = ColorMatrixColorFilter(colorMatrix)
+            }
+
+            val canvas = Canvas(processed)
+            canvas.drawBitmap(processed, 0f, 0f, paint)
+
+            // Apply a slight Gaussian blur followed by sharpening for noise reduction
+            val rs = RenderScript.create(context)
+            val input = Allocation.createFromBitmap(rs, processed)
+            val output = Allocation.createTyped(rs, input.type)
+
+            // First blur slightly
+            val blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+            blurScript.setInput(input)
+            // Very slight blur
+            blurScript.setRadius(1.0f)
+            blurScript.forEach(output)
+
+            // Then apply sharpening
+            val matrix = ScriptIntrinsicConvolve3x3.create(rs, Element.U8_4(rs))
+            matrix.setInput(output)
+            // Sharpening kernel
+            matrix.setCoefficients(floatArrayOf(
+                0f, -1f, 0f,
+                -1f, 5f, -1f,
+                0f, -1f, 0f
+            ))
+            matrix.forEach(input)
+
+            output.copyTo(processed)
+
+            // Clean up
+            rs.destroy()
+
+            return processed
+        } catch (e: Exception) {
+            Log.e(TAG, "Image preprocessing failed", e)
+            // Return original if processing fails
+            return original
         }
     }
 

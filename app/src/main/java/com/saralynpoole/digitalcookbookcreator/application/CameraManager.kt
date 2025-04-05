@@ -105,7 +105,8 @@ class CameraManager(private val context: Context) {
                             continuation.resume(Result.failure(
                                 FileSizeLimitExceededException("File size exceeds $MAX_FILE_SIZE_MB MB")
                             ))
-                            photoFile.delete() // Delete the oversized file
+                            // Delete the oversized file
+                            photoFile.delete()
                             return
                         }
 

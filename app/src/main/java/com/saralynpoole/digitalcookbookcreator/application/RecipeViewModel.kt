@@ -99,8 +99,18 @@ class RecipeViewModel(
     // Function to load all recipes
     private fun loadAllRecipes() {
         viewModelScope.launch {
-            recipeUseCase.getAllRecipes().collect { recipes ->
-                _allRecipes.value = recipes
+            _isLoading.value = true
+            _errorMessage.value = null
+            try {
+                // Uncomment to simulate error when loading recipes
+                //throw Exception("Simulated error")
+                recipeUseCase.getAllRecipes().collect { recipes ->
+                    _allRecipes.value = recipes
+                    _isLoading.value = false
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to load recipes: ${e.localizedMessage}"
+                _isLoading.value = false
             }
         }
     }

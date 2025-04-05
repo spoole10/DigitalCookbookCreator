@@ -29,6 +29,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -54,10 +56,20 @@ fun FormatRecipeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
 
-    // Observe error messages from ViewModel
-    LaunchedEffect(viewModel.errorMessage.value) {
-        viewModel.errorMessage.value?.let { errorMessage ->
-            snackbarHostState.showSnackbar(errorMessage)
+    // Collect StateFlow values
+    val title by viewModel.recipeTitle.collectAsState()
+    val description by viewModel.recipeDescription.collectAsState()
+    val ingredients by viewModel.ingredients.collectAsState()
+    val steps by viewModel.steps.collectAsState()
+    val titleError by viewModel.titleError.collectAsState()
+    val ingredientsError by viewModel.ingredientsError.collectAsState()
+    val stepsError by viewModel.stepsError.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    // Error messages from ViewModel
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
             viewModel.clearError()
         }
     }
@@ -90,25 +102,27 @@ fun FormatRecipeScreen(
                 ) {
                     // Title
                     OutlinedTextField(
-                        value = viewModel.recipeTitle.value,
+                        value = title,
                         onValueChange = { viewModel.updateTitle(it) },
                         label = { Text("Title") },
-                        isError = viewModel.titleError.value,
+                        isError = titleError,
                         supportingText = {
-                            if (viewModel.titleError.value) {
+                            if (titleError) {
                                 Text("Title is required")
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = true
                     )
 
                     // Description
                     OutlinedTextField(
-                        value = viewModel.recipeDescription.value,
+                        value = description,
                         onValueChange = { viewModel.updateDescription(it) },
                         label = { Text("Description") },
                         minLines = 3,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = true
                     )
 
                     // Ingredients section
@@ -124,7 +138,7 @@ fun FormatRecipeScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        viewModel.ingredients.value.forEachIndexed { index, ingredient ->
+                        ingredients.forEachIndexed { index, ingredient ->
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth()
@@ -134,7 +148,8 @@ fun FormatRecipeScreen(
                                     value = ingredient.name,
                                     onValueChange = { viewModel.updateIngredient(index, it, ingredient.quantity) },
                                     label = { Text("Ingredient") },
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
+                                    enabled = true
                                 )
 
                                 // Quantity
@@ -144,7 +159,8 @@ fun FormatRecipeScreen(
                                     label = { Text("Qty") },
                                     modifier = Modifier
                                         .weight(0.5f)
-                                        .padding(start = 8.dp)
+                                        .padding(start = 8.dp),
+                                    enabled = true
                                 )
 
                                 // Delete button
@@ -159,7 +175,7 @@ fun FormatRecipeScreen(
 
                         // Add ingredient button
                         Button(
-                            onClick = { viewModel.updateIngredient(viewModel.ingredients.value.size, "", "") },
+                            onClick = { viewModel.updateIngredient(ingredients.size, "", "") },
                             modifier = Modifier.align(Alignment.Start)
                         ) {
                             Icon(
@@ -170,7 +186,7 @@ fun FormatRecipeScreen(
                         }
 
                         // Show ingredients error if needed
-                        if (viewModel.ingredientsError.value) {
+                        if (ingredientsError) {
                             Text(
                                 "At least one ingredient is required",
                                 color = MaterialTheme.colorScheme.error,
@@ -192,7 +208,7 @@ fun FormatRecipeScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        viewModel.steps.value.forEachIndexed { index, step ->
+                        steps.forEachIndexed { index, step ->
                             Row(
                                 verticalAlignment = Alignment.Top,
                                 modifier = Modifier.fillMaxWidth()
@@ -209,7 +225,8 @@ fun FormatRecipeScreen(
                                     onValueChange = { viewModel.updateStep(index, it) },
                                     label = { Text("Step ${index + 1}") },
                                     minLines = 2,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier.weight(1f),
+                                    enabled = true
                                 )
 
                                 // Delete button
@@ -224,7 +241,7 @@ fun FormatRecipeScreen(
 
                         // Add step button
                         Button(
-                            onClick = { viewModel.updateStep(viewModel.steps.value.size, "") },
+                            onClick = { viewModel.updateStep(steps.size, "") },
                             modifier = Modifier.align(Alignment.Start)
                         ) {
                             Icon(
@@ -235,7 +252,7 @@ fun FormatRecipeScreen(
                         }
 
                         // Show steps error if needed
-                        if (viewModel.stepsError.value) {
+                        if (stepsError) {
                             Text(
                                 "At least one step is required",
                                 color = MaterialTheme.colorScheme.error,
