@@ -6,6 +6,6 @@ Cherished, handwritten recipes on paper are subject to a host of problems over t
 
 Digital Cookbook Creator is an Android app that simplifies the process of digitizing handwritten recipes, using the power of machine learning. Simply take a picture of a treasured recipe, and Digital Cookbook Creator will format it into a digital recipe to be saved to your cookbook!
 
-[Requirements](Requirements.md)
-[Technologies](Technologies.md)
-[Architecture And Design](ArchitectureAndDesign.md)
+-[Requirements](Requirements.md)
+-[Technologies](Technologies.md)
+-[Architecture And Design](ArchitectureAndDesign.md)
