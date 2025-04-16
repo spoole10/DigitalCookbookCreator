@@ -70,4 +70,4 @@ The following table describes best practices that were used in the development o
 |---------|-------------|
 | **Error Logging** | Android Logcat was used for structured logging and debugging throughout development |
 | **Modular Structure** | The project is organized into clean architecture layers: `application`, `domain`, `data`, and `presentation`. This separation improves maintainability, testability, and scalability. |
-| **Test Cases** | Manual test cases were created for each feature. These included form validation, OCR accuracy, and recipe data persistence. See the [Design and Architecture](DesignAndArchitecture.md) page for a full list of test cases. |
+| **Test Cases** | Manual test cases were created for each feature. These included form validation, OCR accuracy, and recipe data persistence. See the [Architecture And Design](ArchitectureAndDesign.md) page for a full list of test cases. |
