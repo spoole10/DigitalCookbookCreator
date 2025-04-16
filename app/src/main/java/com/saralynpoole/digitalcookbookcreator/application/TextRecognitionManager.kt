@@ -34,6 +34,8 @@ class TextRecognitionManager(private val context: Context) {
     companion object {
         private const val TAG = "TextRecognitionManager"
         private const val VALID_IMAGE_EXTENSIONS = "jpg|jpeg|png|bmp"
+
+        private const val TEXT_EXTRACTION_TAG = "ExtractedText"
     }
 
     // Initialize the text recognizer
@@ -58,6 +60,8 @@ class TextRecognitionManager(private val context: Context) {
             val result = suspendCancellableCoroutine<Text> { continuation ->
                 recognizer.process(inputImage)
                     .addOnSuccessListener { text ->
+                        // Log the extracted text
+                        logExtractedText(text)
                         continuation.resume(text)
                     }
                     .addOnFailureListener { exception ->
@@ -158,6 +162,30 @@ class TextRecognitionManager(private val context: Context) {
             // Return original if processing fails
             return original
         }
+    }
+
+
+    // Logs the extracted text with detailed structure
+    private fun logExtractedText(text: Text) {
+        // First log the complete text
+        Log.d(TEXT_EXTRACTION_TAG, "======= COMPLETE EXTRACTED TEXT =======")
+        Log.d(TEXT_EXTRACTION_TAG, text.text)
+        Log.d(TEXT_EXTRACTION_TAG, "=======================================")
+
+        // Then log the structured text (blocks, lines, elements)
+        Log.d(TEXT_EXTRACTION_TAG, "======= STRUCTURED TEXT BLOCKS =======")
+        text.textBlocks.forEachIndexed { blockIdx, block ->
+            Log.d(TEXT_EXTRACTION_TAG, "BLOCK #$blockIdx: ${block.text}")
+
+            block.lines.forEachIndexed { lineIdx, line ->
+                Log.d(TEXT_EXTRACTION_TAG, "  LINE #$lineIdx: ${line.text}")
+
+                line.elements.forEachIndexed { elementIdx, element ->
+                    Log.d(TEXT_EXTRACTION_TAG, "    ELEMENT #$elementIdx: ${element.text}")
+                }
+            }
+        }
+        Log.d(TEXT_EXTRACTION_TAG, "=======================================")
     }
 
     // Exception thrown when the file format is invalid

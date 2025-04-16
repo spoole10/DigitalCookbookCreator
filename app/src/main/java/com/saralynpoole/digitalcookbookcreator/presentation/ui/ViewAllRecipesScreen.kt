@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.saralynpoole.digitalcookbookcreator.application.RecipeViewModel
 import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeWithRelations
+import com.saralynpoole.digitalcookbookcreator.presentation.theme.CardBackground
 
 /**
  * View all recipes screen.
@@ -172,7 +173,10 @@ fun RecipeItem(
             .fillMaxWidth()
             .heightIn(min = 72.dp)
             .clickable { onViewRecipe(recipe.recipe.recipeId) },
-        elevation = CardDefaults.cardElevation()
+        elevation = CardDefaults.cardElevation(),
+        colors = CardDefaults.cardColors(
+            containerColor = CardBackground
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp)

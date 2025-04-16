@@ -51,9 +51,13 @@ class CameraManager(private val context: Context) {
 
             // Image capture
             imageCapture = ImageCapture.Builder()
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                .setTargetResolution(android.util.Size(1600, 1920))
+                .build()
+           /* imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build()
-
+            */
             // Select back camera as default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
