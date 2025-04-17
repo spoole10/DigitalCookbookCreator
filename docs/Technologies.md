@@ -58,7 +58,7 @@ This section describes the rationale behind the decision to use each technology.
 ## Is the App Deployed in the Cloud?
 
 No. The app is currently offline and runs fully on the user's device.  
-All recipe data is stored locally via Room/SQLite, and ML Kit runs on-device for OCR.
+All recipe data is stored locally using Room/SQLite, and ML Kit runs on-device for OCR.
 
 ---
 
