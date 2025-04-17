@@ -9,3 +9,5 @@ Digital Cookbook Creator is an Android app that simplifies the process of digiti
 - [Requirements](Requirements.md)
 - [Technologies](Technologies.md)
 - [Architecture And Design](ArchitectureAndDesign.md)
+- [Risks and Challenges](RisksandChallenges.md)
+- [Known Issues](KnownIssues.md)
