@@ -1,6 +1,6 @@
 # Risks and Challenges
 
-This section describes the risks encountered during the planning and development of the Digital Cookbook Creator application, how they were addressed, and the strategies used to manage them effectively.
+This page describes the risks encountered during the planning and development of the Digital Cookbook Creator application, how they were addressed, and the strategies used to manage them effectively.
 
 ---
 
