@@ -61,10 +61,17 @@ fun FormatRecipeScreen(
     val description by viewModel.recipeDescription.collectAsState()
     val ingredients by viewModel.ingredients.collectAsState()
     val steps by viewModel.steps.collectAsState()
+
+    // Error states
     val titleError by viewModel.titleError.collectAsState()
     val ingredientsError by viewModel.ingredientsError.collectAsState()
     val stepsError by viewModel.stepsError.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
+    val titleLengthError by viewModel.titleLengthError.collectAsState()
+    val descriptionLengthError by viewModel.descriptionLengthError.collectAsState()
+    val ingredientNameLengthError by viewModel.ingredientNameLengthError.collectAsState()
+    val ingredientQuantityLengthError by viewModel.ingredientQuantityLengthError.collectAsState()
+    val stepDescriptionLengthError by viewModel.stepDescriptionLengthError.collectAsState()
 
     // Error messages from ViewModel
     LaunchedEffect(errorMessage) {
@@ -105,10 +112,12 @@ fun FormatRecipeScreen(
                         value = title,
                         onValueChange = { viewModel.updateTitle(it) },
                         label = { Text("Title") },
-                        isError = titleError,
+                        isError = titleError || titleLengthError,
                         supportingText = {
                             if (titleError) {
                                 Text("Title is required")
+                            } else if (titleLengthError) {
+                                Text("Title exceeds maximum length of ${RecipeViewModel.MAX_TITLE_LENGTH} characters")
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
@@ -122,7 +131,13 @@ fun FormatRecipeScreen(
                         label = { Text("Description") },
                         minLines = 3,
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = true
+                        enabled = true,
+                        isError = descriptionLengthError,
+                        supportingText = {
+                            if (descriptionLengthError) {
+                                Text("Description exceeds maximum length of ${RecipeViewModel.MAX_DESCRIPTION_LENGTH} characters")
+                            }
+                        }
                     )
 
                     // Ingredients section
@@ -144,24 +159,46 @@ fun FormatRecipeScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 // Ingredient name
-                                OutlinedTextField(
-                                    value = ingredient.name,
-                                    onValueChange = { viewModel.updateIngredient(index, it, ingredient.quantity) },
-                                    label = { Text("Ingredient") },
-                                    modifier = Modifier.weight(1f),
-                                    enabled = true
-                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    OutlinedTextField(
+                                        value = ingredient.name,
+                                        onValueChange = { viewModel.updateIngredient(index, it, ingredient.quantity) },
+                                        label = { Text("Ingredient") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        isError = ingredientNameLengthError.getOrNull(index) == true
+                                    )
+                                    if (ingredientNameLengthError.getOrNull(index) == true) {
+                                        Text(
+                                            text = "Ingredient name exceeds maximum length of ${RecipeViewModel.MAX_INGREDIENT_NAME_LENGTH} characters",
+                                            color = MaterialTheme.colorScheme.error,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                                        )
+                                    }
+                                }
 
                                 // Quantity
-                                OutlinedTextField(
-                                    value = ingredient.quantity,
-                                    onValueChange = { viewModel.updateIngredient(index, ingredient.name, it) },
-                                    label = { Text("Qty") },
+                                Column(
                                     modifier = Modifier
                                         .weight(0.5f)
-                                        .padding(start = 8.dp),
-                                    enabled = true
-                                )
+                                        .padding(start = 8.dp)
+                                ) {
+                                    OutlinedTextField(
+                                        value = ingredient.quantity,
+                                        onValueChange = { viewModel.updateIngredient(index, ingredient.name, it) },
+                                        label = { Text("Qty") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        isError = ingredientQuantityLengthError.getOrNull(index) == true
+                                    )
+                                    if (ingredientQuantityLengthError.getOrNull(index) == true) {
+                                        Text(
+                                            text = "Quantity exceeds maximum length of ${RecipeViewModel.MAX_INGREDIENT_QUANTITY_LENGTH} characters",
+                                            color = MaterialTheme.colorScheme.error,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                                        )
+                                    }
+                                }
 
                                 // Delete button
                                 IconButton(onClick = { viewModel.removeIngredient(index) }) {
@@ -220,14 +257,24 @@ fun FormatRecipeScreen(
                                 )
 
                                 // Step description
-                                OutlinedTextField(
-                                    value = step,
-                                    onValueChange = { viewModel.updateStep(index, it) },
-                                    label = { Text("Step ${index + 1}") },
-                                    minLines = 2,
-                                    modifier = Modifier.weight(1f),
-                                    enabled = true
-                                )
+                                Column(modifier = Modifier.weight(1f)) {
+                                    OutlinedTextField(
+                                        value = step,
+                                        onValueChange = { viewModel.updateStep(index, it) },
+                                        label = { Text("Step ${index + 1}") },
+                                        minLines = 2,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        isError = stepDescriptionLengthError.getOrNull(index) == true
+                                    )
+                                    if (stepDescriptionLengthError.getOrNull(index) == true) {
+                                        Text(
+                                            text = "Step description exceeds maximum length of ${RecipeViewModel.MAX_STEP_DESCRIPTION_LENGTH} characters",
+                                            color = MaterialTheme.colorScheme.error,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+                                        )
+                                    }
+                                }
 
                                 // Delete button
                                 IconButton(onClick = { viewModel.removeStep(index) }) {
