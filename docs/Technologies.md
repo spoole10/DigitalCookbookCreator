@@ -1,6 +1,6 @@
 # Technologies Used
-
 This page outlines the technologies and tools used to build the Digital Cookbook Creator Android application, as well as the rationale behind each technology decision.
+
 ---
 
 ## Technologies Chosen
