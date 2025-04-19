@@ -52,7 +52,7 @@ Depicts how the app runs on supported Android devices and handles image processi
   - Keeps the app lightweight and avoids adding external libraries for DI
 
 - **Reactive State Management**  
-  The app uses `MutableStateFlow` to expose ViewModel data to the UI in a reactive way, enabling real-time updates to the screen.
+  The app uses MutableStateFlow to expose ViewModel data to the UI in a reactive way, enabling real-time updates to the screen.
 
 ### Component Diagram  
 This component diagram outlines the screens of the application and their responsibilities. Each screen is documented with a summary of its purpose, state management responsibilities, and underlying logic. Arrows indicate navigation flow, showing how users move between screens during recipe creation, editing, viewing, and deletion.
