@@ -30,6 +30,7 @@ class CameraManager(private val context: Context) {
         private const val TAG = "CameraManager"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val MAX_FILE_SIZE_MB = 10 // 10MB max file size
+        //private const val MAX_FILE_SIZE_MB = 0.01 // 100 KB max file size
     }
 
     // Binds camera preview to the PreviewView.
@@ -104,7 +105,7 @@ class CameraManager(private val context: Context) {
                         val savedUri = Uri.fromFile(photoFile)
 
                         // Check file size
-                        val fileSize = photoFile.length() / (1024 * 1024) // Size in MB
+                        val fileSize = photoFile.length().toDouble() / (1024 * 1024) // Size in MB
                         if (fileSize > MAX_FILE_SIZE_MB) {
                             continuation.resume(Result.failure(
                                 FileSizeLimitExceededException("File size exceeds $MAX_FILE_SIZE_MB MB")
@@ -116,6 +117,8 @@ class CameraManager(private val context: Context) {
 
                         continuation.resume(Result.success(savedUri))
                         Log.d(TAG, "Photo saved: $savedUri")
+                        Log.d("CameraManager", "Captured file size = ${photoFile.length() / 1024} KB")
+
                     }
 
                     override fun onError(exception: ImageCaptureException) {
