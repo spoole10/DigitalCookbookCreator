@@ -30,6 +30,7 @@ class CameraManager(private val context: Context) {
         private const val TAG = "CameraManager"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val MAX_FILE_SIZE_MB = 10 // 10MB max file size
+        // Uncomment to test file size limit exception
         //private const val MAX_FILE_SIZE_MB = 0.01 // 100 KB max file size
     }
 

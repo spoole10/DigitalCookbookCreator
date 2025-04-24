@@ -34,6 +34,8 @@ class TextRecognitionManager(private val context: Context) {
     companion object {
         private const val TAG = "TextRecognitionManager"
         private const val VALID_IMAGE_EXTENSIONS = "jpg|jpeg|png|bmp"
+        // Uncomment to test file format exception (removes jpg as a valid image extension)
+        //private const val VALID_IMAGE_EXTENSIONS = "jpeg|png|bmp"
 
         private const val TEXT_EXTRACTION_TAG = "ExtractedText"
     }
