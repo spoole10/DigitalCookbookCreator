@@ -55,6 +55,35 @@ This section describes the rationale behind the decision to use each technology.
 
 ---
 
+## Technologies Learned During This Project
+
+Throughout the development of Digital Cookbook Creator, I intentionally chose to learn several new technologies to expand my skill set and better align with modern Android development practices. These tools weren't just useful for the app but also represented meaningful learning opportunities that helped me grow as a developer.
+
+- **Kotlin 2.0**  
+  I had never used Kotlin before this project, but I chose to learn it because it's the official language for Android development. Learning Kotlin gave me experience with null safety, concise syntax, and better integration with Jetpack libraries—all of which helped me write clean, maintainable code.
+
+- **Jetpack Compose**  
+  While I was more familiar with XML-based layouts, I wanted to learn Jetpack Compose because it represents the future of Android UI development. It also offered a more modern, declarative way to build user interfaces. By learning Compose, I was able to create dynamic, state-aware UI components much more efficiently.
+
+- **CameraX**  
+  Integrating camera functionality was new to me, and I chose CameraX because it simplifies a traditionally complex task. Learning CameraX allowed me to implement photo capture in a way that was lifecycle-aware and device-compatible, which was important for the recipe-scanning feature.
+
+- **Google ML Kit (Text Recognition)**  
+  This was my first time working with machine learning in a mobile app. I chose ML Kit because it offered on-device OCR, and I was excited to learn how to process images and extract handwritten text. It pushed me to think about edge cases, image quality, and user fallback workflows.
+
+- **SQLite and Room**  
+  Although I was already familiar with SQL, I had never worked with SQLite in a mobile environment or used Room as an abstraction layer. Learning how to define entities, manage relationships, and create DAOs using Room helped me build a reliable offline-first database structure.
+
+- **Android Studio**  
+  I had no experience with Android Studio before this project, so I used this opportunity to explore its advanced features like the emulator, layout inspector, and Logcat. Becoming more comfortable with Android Studio significantly improved my development workflow.
+
+- **Gradle**  
+  Gradle was new to me at the start of this project. I learned how it handles build automation, dependency management, and project structuring in Android. Understanding Gradle gave me more control over the build process and helped me manage third-party libraries effectively.
+
+This project gave me the chance to apply my existing knowledge while also diving into new technologies that strengthened both the app and my development experience overall.
+
+---
+
 ## Is the App Deployed in the Cloud?
 
 No. The app is currently offline and runs fully on the user's device.  
