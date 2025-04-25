@@ -10,12 +10,16 @@ import com.saralynpoole.digitalcookbookcreator.domain.entity.IngredientEntity
 @Dao
 interface IngredientDAO {
     // CRUD operations for ingredients
+
+    // Insert a new ingredient
     @Insert
     suspend fun insertIngredient(ingredient: IngredientEntity): Long
 
+    // Delete an ingredient
     @Delete
     suspend fun deleteIngredient(ingredient: IngredientEntity)
 
+    // Update an ingredient
     @Update
     suspend fun updateIngredient(ingredient: IngredientEntity)
 

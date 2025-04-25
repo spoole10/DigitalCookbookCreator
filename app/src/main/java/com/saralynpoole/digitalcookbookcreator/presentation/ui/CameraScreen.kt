@@ -43,8 +43,12 @@ import com.saralynpoole.digitalcookbookcreator.application.RecipeViewModel
 import com.saralynpoole.digitalcookbookcreator.application.TextRecognitionManager
 import kotlinx.coroutines.launch
 
+// Tag for logging purposes
 private const val TAG = "CameraScreen"
 
+/**
+ * Camera screen for taking photos of recipes.
+ */
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun CameraScreen(
@@ -52,15 +56,20 @@ fun CameraScreen(
     onPhotoTaken: () -> Unit,
     onNavigateBack: () -> Unit
 ) {
+    // Get necessary context and lifecycle owner for camera operations
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Initialize managers for camera, text recognition, and recipe formatting
     val cameraManager = remember { CameraManager(context) }
     val textRecognitionManager = remember { TextRecognitionManager(context) }
     val recipeFormatter = remember { RecipeFormatter() }
 
+    // Set up coroutine scope and snackbar for user feedback
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Track camera initialization state
     var isCameraInitialized by remember { mutableStateOf(false) }
 
     // Request camera permission
@@ -76,6 +85,7 @@ fun CameraScreen(
         }
     }
 
+    // Main UI structure with snackbar support
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
@@ -85,9 +95,10 @@ fun CameraScreen(
                 .padding(padding)
         ) {
             if (cameraPermissionState.status.isGranted) {
-                // Camera preview
+                // Camera preview (only shown if permission is granted)
                 AndroidView(
                     factory = { ctx ->
+                        // Create and configure the camera preview view
                         val previewView = PreviewView(ctx).apply {
                             implementationMode = PreviewView.ImplementationMode.COMPATIBLE
                         }
@@ -96,8 +107,10 @@ fun CameraScreen(
                         scope.launch {
                             val result = cameraManager.startCamera(lifecycleOwner, previewView)
                             result.onSuccess {
+                                // Mark camera as initialized on success
                                 isCameraInitialized = true
                             }.onFailure { error ->
+                                // Log and show error if camera initialization fails
                                 Log.e(TAG, "Failed to start camera", error)
                                 snackbarHostState.showSnackbar("Failed to start camera: ${error.message}")
                             }
@@ -108,7 +121,7 @@ fun CameraScreen(
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Back button
+                // Back button (allows user to navigate back without taking a photo)
                 IconButton(
                     onClick = onNavigateBack,
                     modifier = Modifier
@@ -122,7 +135,7 @@ fun CameraScreen(
                     )
                 }
 
-                // Capture button
+                // Capture button (main action button for taking a photo)
                 FloatingActionButton(
                     onClick = {
                         if (isCameraInitialized) {
@@ -159,8 +172,10 @@ fun CameraScreen(
                                                 viewModel.updateStep(index, step)
                                             }
 
+                                            // Navigate to next screen after successful processing
                                             onPhotoTaken()
                                         }.onFailure { error ->
+                                            // Handle text recognition errors with appropriate messages
                                             snackbarHostState.showSnackbar(
                                                 when (error) {
                                                     is TextRecognitionManager.FileFormatException ->
@@ -170,10 +185,12 @@ fun CameraScreen(
                                             )
                                         }
                                     } catch (e: Exception) {
+                                        // Catch and handle any unexpected errors during processing
                                         Log.e(TAG, "Error processing image", e)
                                         snackbarHostState.showSnackbar("Error processing image: ${e.message}")
                                     }
                                 }.onFailure { error ->
+                                    // Handle photo capture errors with specific error messages
                                     snackbarHostState.showSnackbar(
                                         when (error) {
                                             is CameraManager.FileSizeLimitExceededException ->
@@ -186,6 +203,7 @@ fun CameraScreen(
                                 }
                             }
                         } else {
+                            // Inform user if they try to take a photo before camera is ready
                             scope.launch {
                                 snackbarHostState.showSnackbar("Camera is not ready yet")
                             }
@@ -203,7 +221,7 @@ fun CameraScreen(
                     )
                 }
             } else {
-                // Camera permission not granted
+                // Display message when camera permission is not granted
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center

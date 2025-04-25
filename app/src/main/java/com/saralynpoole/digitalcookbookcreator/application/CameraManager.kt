@@ -34,12 +34,14 @@ class CameraManager(private val context: Context) {
         //private const val MAX_FILE_SIZE_MB = 0.01 // 100 KB max file size
     }
 
-    // Binds camera preview to the PreviewView.
+    // Initializes the camera and binds the camera preview and capture use cases to the provided
+    // PreviewView and LifeCycleOwner.
     suspend fun startCamera(
         lifecycleOwner: LifecycleOwner,
         previewView: androidx.camera.view.PreviewView
     ): Result<Unit> = withContext(Dispatchers.Main) {
         return@withContext try {
+            // Request a camera provider asynchronously
             val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
             val cameraProvider = suspendCoroutine<ProcessCameraProvider> { continuation ->
                 cameraProviderFuture.addListener({
@@ -47,11 +49,11 @@ class CameraManager(private val context: Context) {
                 }, executor)
             }
 
-            // Preview
+            // Build the camera preview use case
             val preview = Preview.Builder().build()
             preview.setSurfaceProvider(previewView.surfaceProvider)
 
-            // Image capture
+            // Build the image capture use case
             imageCapture = ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .setTargetResolution(android.util.Size(1600, 1920))
@@ -63,10 +65,10 @@ class CameraManager(private val context: Context) {
             // Select back camera as default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
-            // Unbind previous use cases
+            // Clear any previous use cases to prevent conflicts
             cameraProvider.unbindAll()
 
-            // Bind use cases to camera
+            // Bind the lifecycle, camera selector, preview, and image capture to the camera provider
             cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 cameraSelector,
@@ -76,6 +78,7 @@ class CameraManager(private val context: Context) {
 
             Result.success(Unit)
         } catch (exc: Exception) {
+            // Log and return failure if binding failed
             Log.e(TAG, "Use case binding failed", exc)
             Result.failure(exc)
         }
@@ -87,16 +90,16 @@ class CameraManager(private val context: Context) {
             IllegalStateException("Camera not initialized")
         )
 
-        // Create time-stamped file
+        // Create a temporary file with a timestamp-based name
         val photoFile = File(
             context.cacheDir,
             SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis()) + ".jpg"
         )
 
-        // Create output options object
+        // Set up output options for where to save the photo
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
-        // Take the picture
+        // Take the picture asynchronously
         return@withContext suspendCoroutine { continuation ->
             imageCapture.takePicture(
                 outputOptions,
@@ -107,6 +110,7 @@ class CameraManager(private val context: Context) {
 
                         // Check file size
                         val fileSize = photoFile.length().toDouble() / (1024 * 1024) // Size in MB
+                        // If the file size exceeds the limit, delete the file and return an error
                         if (fileSize > MAX_FILE_SIZE_MB) {
                             continuation.resume(Result.failure(
                                 FileSizeLimitExceededException("File size exceeds $MAX_FILE_SIZE_MB MB")
@@ -116,6 +120,7 @@ class CameraManager(private val context: Context) {
                             return
                         }
 
+                        // Otherwise, return success with the file URI
                         continuation.resume(Result.success(savedUri))
                         Log.d(TAG, "Photo saved: $savedUri")
                         Log.d("CameraManager", "Captured file size = ${photoFile.length() / 1024} KB")
@@ -123,6 +128,7 @@ class CameraManager(private val context: Context) {
                     }
 
                     override fun onError(exception: ImageCaptureException) {
+                        // Return an error if photo capture fails
                         Log.e(TAG, "Photo capture failed: ${exception.message}", exception)
                         continuation.resume(Result.failure(exception))
                     }

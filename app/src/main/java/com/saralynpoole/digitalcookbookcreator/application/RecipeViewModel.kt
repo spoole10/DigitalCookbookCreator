@@ -26,6 +26,7 @@ class RecipeViewModel(
     private val stepUseCase: StepUseCase,
     private val appContext: Context? = null
 ) : ViewModel() {
+
     companion object {
         // Constants for validation
         const val MAX_TITLE_LENGTH = 100
@@ -90,13 +91,13 @@ class RecipeViewModel(
     private val _stepDescriptionLengthError = MutableStateFlow<List<Boolean>>(emptyList())
     val stepDescriptionLengthError = _stepDescriptionLengthError.asStateFlow()
 
-    // Function to load all recipes when the ViewModel is created
+    // Load all recipes when the ViewModel is created
     init {
         loadAllRecipes()
     }
 
 
-    // Function to load all recipes
+    // Function to load all recipes from the database into the view model state
     private fun loadAllRecipes() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -144,6 +145,7 @@ class RecipeViewModel(
         }
     }
 
+    // Validates all fields before saving or updating a recipe
     private fun validateFields(): Boolean {
         var isValid = true
 

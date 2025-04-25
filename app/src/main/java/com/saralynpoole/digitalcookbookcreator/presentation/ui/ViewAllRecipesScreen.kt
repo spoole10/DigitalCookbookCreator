@@ -74,7 +74,7 @@ fun ViewAllRecipesScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(bottom = 32.dp, top = 32.dp)
             )
-            // Show error message if any
+            // Show error message (if any)
             errorMessage?.let { error ->
                 Row(
                     modifier = Modifier

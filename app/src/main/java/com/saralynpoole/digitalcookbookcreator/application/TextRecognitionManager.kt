@@ -72,7 +72,7 @@ class TextRecognitionManager(private val context: Context) {
                     }
             }
 
-            // Check if any text was recognized
+            // Logs a warning if no text was detected
             if (result.text.isEmpty()) {
                 Log.w(TAG, "No text recognized in the image")
             }
@@ -90,7 +90,7 @@ class TextRecognitionManager(private val context: Context) {
         }
     }
 
-    // Creates an InputImage from URI
+    // Converts an image URI into an InputImage for ML Kit text recognition.
     private fun getInputImage(uri: Uri): InputImage? {
         return try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
@@ -107,6 +107,7 @@ class TextRecognitionManager(private val context: Context) {
         }
     }
 
+    // Preprocesses the image to improve OCR results
     private fun preprocessImage(original: Bitmap): Bitmap {
         try {
             // Create a mutable copy of the bitmap
@@ -127,6 +128,7 @@ class TextRecognitionManager(private val context: Context) {
                 colorFilter = ColorMatrixColorFilter(colorMatrix)
             }
 
+            // Draw the adjusted image onto a canvas
             val canvas = Canvas(processed)
             canvas.drawBitmap(processed, 0f, 0f, paint)
 
@@ -167,7 +169,8 @@ class TextRecognitionManager(private val context: Context) {
     }
 
 
-    // Logs the extracted text with detailed structure
+    // Logs the extracted text content for debugging purposes.
+    // Shows both the complete text and its block/line/element structure.
     private fun logExtractedText(text: Text) {
         // First log the complete text
         Log.d(TEXT_EXTRACTION_TAG, "======= COMPLETE EXTRACTED TEXT =======")

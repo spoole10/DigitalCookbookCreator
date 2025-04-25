@@ -11,12 +11,16 @@ import com.saralynpoole.digitalcookbookcreator.domain.entity.RecipeWithRelations
 @Dao
 interface RecipeDAO {
     // CRUD operations for recipes
+
+    // Insert a new recipe
     @Insert
     suspend fun insertRecipe(recipe: RecipeEntity): Long
 
+    // Delete a recipe
     @Delete
     suspend fun deleteRecipe(recipe: RecipeEntity)
 
+    // Update a recipe
     @Update
     suspend fun updateRecipe(recipe: RecipeEntity)
 
