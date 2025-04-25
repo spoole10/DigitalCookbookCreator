@@ -4,16 +4,16 @@ This page describes the risks encountered during the planning and development of
 
 ---
 
-## Risk: Learning Kotlin
+## Risk: Learning New Technologies
 
 **Challenge:**  
-At the beginning of the project, I had no prior experience with Kotlin.
+At the beginning of the project, I had no prior experience with Kotlin, Jetpack Compose, ML Kit, or Android Studio.
 
 **How It Was Overcome:**  
-I committed to learning Kotlin by reading official documentation, completing online tutorials, and creating practice apps to explore the language and Android Studio environment.
+I committed to learning each of these new technologies by reading official documentation, completing online tutorials, and creating practice apps to explore the language and Android Studio environment.
 
 **Risk Management Approach:**  
-This risk was identified during the planning phase. Time was specifically allocated to learn and experiment with Kotlin before development of Digital Cookbook Creator began. This early mitigation kept the project on schedule.
+This risk was identified during the planning phase. Time was specifically allocated to learn and experiment with each new technology before development of Digital Cookbook Creator began. This early mitigation kept the project on schedule.
 
 ---
 
