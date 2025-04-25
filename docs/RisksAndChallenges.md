@@ -20,7 +20,7 @@ This risk was identified during the planning phase. Time was specifically alloca
 ## Risk: Database Setup
 
 **Challenge:**  
-I had limited experience with setting up a Room database.
+I had limited experience with setting up a SQLite database with Room.
 
 **How It Was Overcome:**  
 A proof-of-concept project was created to test SQLite and Room configuration, entity relationships, and DAO queries. This allowed the me to confidently design and implement the database during development.
