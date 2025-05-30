@@ -33,7 +33,7 @@ class RecipeViewModel(
         const val MAX_DESCRIPTION_LENGTH = 500
         const val MAX_INGREDIENT_NAME_LENGTH = 100
         const val MAX_INGREDIENT_QUANTITY_LENGTH = 100
-        const val MAX_STEP_DESCRIPTION_LENGTH = 300
+        const val MAX_STEP_DESCRIPTION_LENGTH = 600
     }
 
     // Mutable states
